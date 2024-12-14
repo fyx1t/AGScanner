@@ -1,0 +1,30 @@
+{
+    "all": {
+        "availability": [
+            
+        ],
+        "confidentiality": [
+            "sqli",
+            "xss"
+        ],
+        "integrity": [
+            
+        ]
+    },
+    "exclude": {
+        
+    },
+    "include": {
+
+    },
+    "collections": {
+        "complex": {
+            "include": ["*"],
+            "exclude": []
+        },
+        "no_dos": {
+            "include": [],
+            "exclude": []
+        }
+    }
+}
