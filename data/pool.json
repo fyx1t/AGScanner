@@ -1,0 +1,12 @@
+{
+    "/": [
+        {
+            "claster": "confidentiality",
+            "name": "sqli"
+        },
+        {
+            "claster": "confidentiality",
+            "name": "xss"
+        }
+    ]
+}

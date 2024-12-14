@@ -1,3 +1,5 @@
 {
-    "": ""
+    "domain": "https://google.com",
+    "paths_filedir": "data/paths.json",
+    "pool_filedir": "data/pool.json"
 }

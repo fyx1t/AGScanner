@@ -3,10 +3,20 @@
         "availability": [
             
         ],
-        "confidentiality": [
-            "sqli",
-            "xss"
-        ],
+        "confidentiality": {
+            "sqli": {
+                "path": "fuzzers/confidentiality/sqli",
+                "filename": "fuzzer.py",
+                "readme": "README.md",
+                "payloads_folder": "payloads"
+            },
+            "xss": {
+                "path": "fuzzers/confidentiality/xss",
+                "filename": "fuzzer.py",
+                "readme": "README.md",
+                "payloads_folder": "payloads"
+            }
+        },
         "integrity": [
             
         ]
