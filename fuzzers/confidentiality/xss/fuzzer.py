@@ -1,10 +1,16 @@
-from fuzzers.base_fuzzer import Base_Fuzzer
+from fuzzers.base_fuzzer import BaseFuzzer
 
-def run():
-    fuzzer = Fuzzer()
+def run(endpoint: str, data: dict):
+    fuzzer = Fuzzer('')
     fuzzer.work({'status': '123'})
 
-class Fuzzer(Base_Fuzzer):
+class Fuzzer(BaseFuzzer):
+    def __init__(self, url):
+        super().__init__(url)
+
+    def load_payloads(self, filenames):
+        return super().load_payloads(filenames)
+
     def work(self, data) -> dict:
         data["status"] = "fuzzed_by_example"
         return data

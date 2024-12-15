@@ -1,0 +1,23 @@
+[
+    {
+        "name": "tag_form",
+        "checkrule": "$HTML?TAG/form+?TAG/input|?TAG/textarea",
+        "fuzzers": [
+            {
+            "claster": "confidentiality",
+            "name": "sqli"
+            },
+            {
+                "claster": "confidentiality",
+                "name": "xss"
+            }
+        ],
+        "data": {
+            "url": "IN{TAG=[form]~IN{ATRIBUTE=[action]}}",
+            "data": "IN{TAG=[input]~IN{TAG=[*]~IN{DATA}}}",
+            "placeholder": "BODY",
+            "headers": "BASIC",
+            "method": "IN{TAG=[form]~IN{ATRIBUTE=[method]}}"
+        }
+    }
+]
