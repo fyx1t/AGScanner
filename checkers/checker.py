@@ -23,6 +23,7 @@ def run(endpoint: str) -> dict:
         # Check checktype (HTML, HTTP, API etc...) and start checking:
         if check_node.children[0].value == 'HTML':
             if check_in_html(endpoint, check_node):
+                # print(check_in_html(endpoint, check_node))
                 # Add check for every rule (HTML, HTTP, API):
                 output[rule_instance['name']] = {
                     "url": get_in_html(endpoint, url_node),
