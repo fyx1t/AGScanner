@@ -24,6 +24,7 @@ class BaseFuzzer(ABC):
         for collection in collections:
             with open(path + '/payloads/' + collection + '.txt', 'r') as file:
                 payloads[collection] = file.readlines()
+        print(payloads)
         return payloads
 
     def get_domain(self) -> str:

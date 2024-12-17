@@ -1,7 +1,7 @@
 [
     {
         "name": "tag_form",
-        "checkrule": "$HTML?TAG/form+?TAG/input|?TAG/textarea",
+        "checkrule": "?HTML%TAG/form+%TAG/input|%TAG/textarea",
         "fuzzers": [
             {
             "claster": "confidentiality",
@@ -13,11 +13,11 @@
             }
         ],
         "data": {
-            "url": "IN{TAG=[form]~IN{ATRIBUTE=[action]}}",
-            "data": "IN{TAG=[input]~IN{TAG=[*]~IN{DATA}}}",
-            "placeholder": "BODY",
-            "headers": "BASIC",
-            "method": "IN{TAG=[form]~IN{ATRIBUTE=[method]}}"
+            "url": "!HTML%TAG/form+%ATRIBUTE/action+%VALUE",
+            "data": "!HTML%TAG/form+%TAG/*+%ATRIBUTE/name+%VALUE",
+            "placeholder": "",
+            "headers": "",
+            "method": "!HTML%TAG/form+%ATRIBUTE/method+%VALUE"
         }
     }
 ]

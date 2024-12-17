@@ -1,9 +1,6 @@
 from json import load, dumps
-from parsers.fuzzers_rules import get_tokens, check_rules
-from parsers.url_rules import get_url
-from parsers.method_rules import get_method
-from parsers.data_rules import get_data
-from parsers.headers_rules import get_headers
+from parsers import rules_parser
+from checkers import checker
 
 class Analyzer:
     def __init__(self):
@@ -19,24 +16,24 @@ class Analyzer:
     def __identify_fuzzers_pool(self, endpoint: str) -> list:
         # Процесс взаимодействия с сервером
         fuzzers_pool: list = []
-        tokens: list = get_tokens()
-        accepted_rules = check_rules(endpoint, tokens)
+
+        accepted_rules = checker.run(endpoint)
+
         with open('configs/rules.json', 'r') as rules_file:
             rules: list = load(rules_file)
         for accepted_rule in accepted_rules:
             for basic_rule in rules:
                 if basic_rule['name'] == accepted_rule[0]:
-
                     for fuzzer in basic_rule['fuzzers']:
                         fuzzers_pool.append(
                             {
                                 'claster': fuzzer['claster'], 
                                 'name': fuzzer['name'],
-                                'headers': get_headers(basic_rule['data']['headers']),
-                                'data': get_data(basic_rule['data']['data'], accepted_rule[1], basic_rule['data']['placeholder']),
+                                'headers': '',
+                                'data': '',
                                 'placeholder': basic_rule['data']['placeholder'],
-                                'method': get_method(basic_rule['data']['method'], accepted_rule[1]),
-                                'url': get_url(basic_rule['data']['url'], accepted_rule[1])
+                                'method': '',
+                                'url': ''
                             })
         return fuzzers_pool
 
