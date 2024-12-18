@@ -8,7 +8,7 @@ def check_in_html(endpoint, node) -> bool:
     html_data = """
     <html>
         <body>
-            <form action="/123">
+            <form action="/123" method="POST">
                 <input type="text" name="name">
                 <textarea name="comment"></textarea>
             </form>
@@ -28,7 +28,7 @@ def get_in_html(endpoint, node) -> dict:
     html_data = """
     <html>
         <body>
-            <form action="/123">
+            <form action="/123" method="POST">
                 <input type="text" name="name">
                 <textarea name="comment"></textarea>
             </form>
@@ -37,9 +37,8 @@ def get_in_html(endpoint, node) -> dict:
     """
     executor = RuleExecutor()
     executor.rule_type = 'GRUB'
-    node.print_tree()
     executor.execute(node, html_data)
-    print(executor.return_data)
+    return executor.return_data
 
 
 class RuleExecutor:
@@ -48,7 +47,7 @@ class RuleExecutor:
         self.htmls = []
         self.rule_type = ''
         self.html_spaces = {}
-        self.return_data = {}
+        self.return_data = []
 
     def check(self) -> bool:
         """
@@ -103,20 +102,23 @@ class RuleExecutor:
             for child in node.children:
                 if child.node_type == 'Entity':
                     self.__execute_node(child, prev_node=node, html_space_level=html_space_level)
-                elif child.node_type == 'SearchDetail':
-                    for child_child in child.children:
-                        self.__execute_node(child_child, prev_node=child, html_space_level=html_space_level+1)
-                        if child_child.logic_operator:
-                            self.collection.append(child_child.logic_operator)
-        
+                else:
+                    self.__execute_node(child, prev_node=node, html_space_level=html_space_level+1)
         elif node.node_type == 'Entity':
             self._search_entity(node, prev_node, html_space_level)
+        elif node.logic_operator:
+            self.collection.append(node.logic_operator)
 
     def _search_entity(self, node, prev_node, html_space_level):
         # POKA SPECIALNO BERETSYA TOLKO PERVOE VHOZHDENIE, POTOM DOBAVIT OBRABOTKU VSEH VHOZHDENIY
         if prev_node.value == 'TAG':
             soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
-            self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
+            if '*' in node.value:
+                self.html_spaces[html_space_level+1] = ''
+                for value in node.value.split('*'):
+                    self.html_spaces[html_space_level+1] += str(soup.find_all(value)) + '|#|'
+            else:
+                self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
             if self.rule_type == 'CHECK':
                 # 2 is because of [] symbols:
                 if len(self.html_spaces[html_space_level + 1]) > 2:
@@ -124,12 +126,25 @@ class RuleExecutor:
                 else:
                     self.collection.append(False)
         elif prev_node.value == 'ATRIBUTE':
-            soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
-            self.html_spaces[html_space_level+1] = str(soup.find(id='action'))
-            if self.rule_type == 'CHECK':
-                pass
-            elif self.rule_type == 'GRUB':
-                pass
+            if '|#|' in str(self.html_spaces[html_space_level]):
+                splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')
+                del splitted_html_spaces[-1]
+                for splitted_html_space in splitted_html_spaces:
+                    soup = BeautifulSoup(splitted_html_space, 'html.parser')
+                    data = soup.find().attrs
+                    if self.rule_type == 'CHECK':
+                        pass
+                    elif self.rule_type == 'GRUB':
+                        if data and node.value in [*data.keys()]:
+                            self.return_data.append(data[node.value])
+            else:
+                soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
+                data = soup.find().attrs
+                if self.rule_type == 'CHECK':
+                    pass
+                elif self.rule_type == 'GRUB':
+                    if data and node.value in [*data.keys()]:
+                        self.return_data.append(data[node.value])
 
 if __name__ == '__main__':
     pass

@@ -2,21 +2,27 @@
     "/": [
         {
             "claster": "confidentiality",
-            "data": "text=%&number=%&database=%",
+            "data": [
+                "name",
+                "comment"
+            ],
             "headers": "Content-Type: text/plain\r\n",
             "method": "POST",
             "name": "sqli",
             "placeholder": "BODY",
-            "url": "/"
+            "url": "/123"
         },
         {
             "claster": "confidentiality",
-            "data": "text=%&number=%&database=%",
+            "data": [
+                "name",
+                "comment"
+            ],
             "headers": "Content-Type: text/plain\r\n",
             "method": "POST",
             "name": "xss",
             "placeholder": "BODY",
-            "url": "/"
+            "url": "/123"
         }
     ]
 }

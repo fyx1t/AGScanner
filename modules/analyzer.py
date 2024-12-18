@@ -21,19 +21,19 @@ class Analyzer:
 
         with open('configs/rules.json', 'r') as rules_file:
             rules: list = load(rules_file)
-        for accepted_rule in accepted_rules:
+        for accepted_rule in accepted_rules.keys():
             for basic_rule in rules:
-                if basic_rule['name'] == accepted_rule[0]:
+                if basic_rule['name'] == accepted_rule:
                     for fuzzer in basic_rule['fuzzers']:
                         fuzzers_pool.append(
                             {
                                 'claster': fuzzer['claster'], 
                                 'name': fuzzer['name'],
-                                'headers': '',
-                                'data': '',
-                                'placeholder': basic_rule['data']['placeholder'],
-                                'method': '',
-                                'url': ''
+                                'headers': accepted_rules[accepted_rule]['headers'],
+                                'data': accepted_rules[accepted_rule]['data'],
+                                'placeholder': accepted_rules[accepted_rule]['placeholder'],
+                                'method': accepted_rules[accepted_rule]['method'][0],
+                                'url': accepted_rules[accepted_rule]['url'][0]
                             })
         return fuzzers_pool
 

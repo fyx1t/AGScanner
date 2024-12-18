@@ -13,11 +13,11 @@
             }
         ],
         "data": {
-            "url": "!HTML%TAG/form+%ATRIBUTE/action+%VALUE",
-            "data": "!HTML%TAG/form+%TAG/*+%ATRIBUTE/name+%VALUE",
-            "placeholder": "",
-            "headers": "",
-            "method": "!HTML%TAG/form+%ATRIBUTE/method+%VALUE"
+            "url": "!HTML%TAG/form+%ATRIBUTE/action",
+            "data": "!HTML%TAG/form+%TAG/input*textarea+%ATRIBUTE/name",
+            "placeholder": "BODY",
+            "headers": "Content-Type: text/plain\r\n",
+            "method": "!HTML%TAG/form+%ATRIBUTE/method"
         }
     }
 ]

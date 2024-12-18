@@ -1,0 +1,10 @@
+{
+    "HTTP": {
+        "HEADERS": {
+            "BASIC": [
+                "Content-Type",
+                "Host"
+            ]
+        }
+    }
+}

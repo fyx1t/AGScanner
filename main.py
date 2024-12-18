@@ -17,11 +17,11 @@ def initialize_analyzer():
         print(f"[ANALYZER MODULE] {e}")
 
 def initialize_fuzzer():
-    try:
+    # try:
         fuzzer = fuz.Fuzzer()
         fuzzer.fuzz()
-    except Exception as e:
-        print(f"[FUZZER MODULE] {e}")
+    # except Exception as e:
+    #     print(f"[FUZZER MODULE] {e}")
 
 def run():
     initialize_spy()  # Инициализация шпиона
