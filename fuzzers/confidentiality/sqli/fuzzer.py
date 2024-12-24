@@ -16,14 +16,6 @@ class Fuzzer(BaseFuzzer):
 
     
     def pretty_print_POST(self, req):
-        """
-        At this point it is completely built and ready
-        to be fired; it is "prepared".
-
-        However pay attention at the formatting used in 
-        this function because it is programmed to be pretty 
-        printed and may differ from the actual request.
-        """
         print('{}\n{}\r\n{}\r\n\r\n{}'.format(
             '-----------START-----------',
             req.method + ' ' + req.url,
