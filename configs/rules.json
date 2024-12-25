@@ -16,13 +16,8 @@
             "url": "!HTML%TAG/form+%ATRIBUTE/action",
             "data": "!HTML%TAG/form+%TAG/input*textarea+%ATRIBUTE/name",
             "placeholder": "BODY",
-            "headers": "Content-Type: text/plain\r\n",
+            "headers": "Content-Type: application/x-www-form-urlencoded",
             "method": "!HTML%TAG/form+%ATRIBUTE/method"
         }
     }
 ]
-
-
-
-
-

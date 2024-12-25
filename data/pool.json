@@ -1,28 +1,55 @@
 {
-    "/": [
+    "/": [],
+    "/login": [
         {
             "claster": "confidentiality",
             "data": [
-                "name",
-                "comment"
+                "login",
+                "password"
             ],
-            "headers": "Content-Type: text/plain\r\n",
-            "method": "POST",
+            "headers": "Content-Type: application/x-www-form-urlencoded",
+            "method": "post",
             "name": "sqli",
             "placeholder": "BODY",
-            "url": "/123"
+            "url": "/login"
         },
         {
             "claster": "confidentiality",
             "data": [
-                "name",
-                "comment"
+                "login",
+                "password"
             ],
-            "headers": "Content-Type: text/plain\r\n",
-            "method": "POST",
+            "headers": "Content-Type: application/x-www-form-urlencoded",
+            "method": "post",
             "name": "xss",
             "placeholder": "BODY",
-            "url": "/123"
+            "url": "/login"
+        }
+    ],
+    "/register": [
+        {
+            "claster": "confidentiality",
+            "data": [
+                "login",
+                "password"
+            ],
+            "headers": "Content-Type: application/x-www-form-urlencoded",
+            "method": "post",
+            "name": "sqli",
+            "placeholder": "BODY",
+            "url": "/register"
+        },
+        {
+            "claster": "confidentiality",
+            "data": [
+                "login",
+                "password"
+            ],
+            "headers": "Content-Type: application/x-www-form-urlencoded",
+            "method": "post",
+            "name": "xss",
+            "placeholder": "BODY",
+            "url": "/register"
         }
     ]
 }

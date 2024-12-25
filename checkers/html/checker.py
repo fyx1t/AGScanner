@@ -1,23 +1,16 @@
 from bs4 import BeautifulSoup
+from requests import get
+from json import load
 
 def check_in_html(endpoint, node) -> bool:
     """
     
     Здесь работают проверочные правила:
     """
-    html_data = """
-    <html>
-        <body>
-            <form action="/123" method="POST">
-                <input type="text" name="name">
-                <textarea name="comment"></textarea>
-            </form>
-        </body>
-    </html>
-    """
+    html_data = get(load(open('configs/main.json', 'r'))['domain'] + endpoint)
     executor = RuleExecutor()
     executor.rule_type = 'CHECK'
-    executor.execute(node, html_data)
+    executor.execute(node, html_data.content.decode())
     return executor.check()
 
 def get_in_html(endpoint, node) -> dict:
@@ -25,19 +18,10 @@ def get_in_html(endpoint, node) -> dict:
     
     Здесь работают захватывающие правила
     """
-    html_data = """
-    <html>
-        <body>
-            <form action="/123" method="POST">
-                <input type="text" name="name">
-                <textarea name="comment"></textarea>
-            </form>
-        </body>
-    </html>
-    """
+    html_data = get(load(open('configs/main.json', 'r'))['domain'] + endpoint)
     executor = RuleExecutor()
     executor.rule_type = 'GRUB'
-    executor.execute(node, html_data)
+    executor.execute(node, html_data.content.decode())
     return executor.return_data
 
 
@@ -106,7 +90,7 @@ class RuleExecutor:
                     self.__execute_node(child, prev_node=node, html_space_level=html_space_level+1)
         elif node.node_type == 'Entity':
             self._search_entity(node, prev_node, html_space_level)
-        elif node.logic_operator:
+        if node.logic_operator:
             self.collection.append(node.logic_operator)
 
     def _search_entity(self, node, prev_node, html_space_level):
@@ -116,15 +100,22 @@ class RuleExecutor:
             if '*' in node.value:
                 self.html_spaces[html_space_level+1] = ''
                 for value in node.value.split('*'):
-                    self.html_spaces[html_space_level+1] += str(soup.find_all(value)) + '|#|'
+                    found = str(soup.find_all(value)).replace('[', '').replace(']', '')
+                    if ', ' in found:
+                        for found_element in found.split(', '):
+                            self.html_spaces[html_space_level+1] += found_element + '|#|' if found_element else ''
+                    else:
+                        self.html_spaces[html_space_level+1] += found + '|#|' if found else ''
             else:
-                self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
+                self.html_spaces[html_space_level+1] = str(soup.find_all(node.value)).replace('[', '').replace(']', '')
             if self.rule_type == 'CHECK':
                 # 2 is because of [] symbols:
                 if len(self.html_spaces[html_space_level + 1]) > 2:
                     self.collection.append(True)
                 else:
                     self.collection.append(False)
+            elif self.rule_type == 'GRUB':
+                pass
         elif prev_node.value == 'ATRIBUTE':
             if '|#|' in str(self.html_spaces[html_space_level]):
                 splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')

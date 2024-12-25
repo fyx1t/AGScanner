@@ -10,11 +10,11 @@ def initialize_spy():
         print(f"[SPY MODULE] {e}")
 
 def initialize_analyzer():
-    try:
+    # try:
         analyzer = an.Analyzer()
         analyzer.identify_entry_points()
-    except Exception as e:
-        print(f"[ANALYZER MODULE] {e}")
+    # except Exception as e:
+    #     print(f"[ANALYZER MODULE] {e}")
 
 def initialize_fuzzer():
     # try:
