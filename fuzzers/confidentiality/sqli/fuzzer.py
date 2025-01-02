@@ -1,9 +1,7 @@
 from fuzzers.base_fuzzer import BaseFuzzer
 import requests
-import datetime
 
 PAYLOADS_COLLECTIONS=['basic', 'mysql']
-DATETIME = datetime.datetime.now()
 
 def run(endpoint: str, data: dict):
     fuzzer = Fuzzer('')
@@ -17,25 +15,8 @@ class Fuzzer(BaseFuzzer):
             "bad": None
         }
 
-    def log(self, log_data: str) -> None:
-        with open(f'logs/{DATETIME}.log', 'a') as log_file:
-            log_file.write(log_data + '\n')
-    
-    def log_alert(self, log_data: str) -> None:
-        with open(f'logs/alerts/{DATETIME}.log', 'a') as log_file:
-            log_file.write(log_data + '\n')
-
     def load_payloads(self, filenames):
         return super().load_payloads(filenames, '/'.join(__file__.split('/')[0:-1]))
-
-    
-    def pretty_print_POST(self, req):
-        self.log('{}\n{}\r\n{}\r\n\r\n{}'.format(
-            '-----------REQUEST-----------',
-            req.method + ' ' + req.url,
-            '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-            req.body,
-        ))
     
     def save_standart_outputs(self, data):
         if data['method'] == 'GET':
@@ -47,17 +28,9 @@ class Fuzzer(BaseFuzzer):
             response = requests.post(f'{self.get_domain()}{data['url']}', ''.join(f"{element}=1ks92sll1lak12suod9sa12jln&" for element in data['data'])[:-1], headers=headers)
             self.standart_outputs['bad'] = response
 
-    def pretty_print_RESPONSE(self, response):
-        self.log('{}\n{}\r\n{}\r\n\r\n{}'.format(
-            '-----------RESPONSE-----------',
-            str(response.status_code) + ' ' + response.url,
-            '\r\n'.join('{}: {}'.format(k, v) for k, v in response.headers.items()),
-            response.content.decode(),
-        ))
-
     def check_for_alert(self, response):
         if response.status_code != 200 and response.status_code != self.standart_outputs['bad'].status_code:
-            self.log_alert(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\nFOUND ALERT IN: {response.url}\nREQUEST PAYLOADS: {response.request.body}\nRESPONSE CONTENT: {response.content.decode()}\nRESPONSE STATUS CODE: {response.status_code}\n')
+            self.log(response, True, 'response')
 
     def fuzz_through_payloads_combinations(self, arr, n, data, current_combination=[], index=0):
         if index == n:
@@ -70,8 +43,8 @@ class Fuzzer(BaseFuzzer):
                 body_data += f'{payload_key}={current_combination[i]}&'
                 i += 1
             response = requests.post(f'{self.get_domain()}{data['url']}', body_data[:-1], headers=headers)
-            self.pretty_print_POST(response.request)
-            self.pretty_print_RESPONSE(response)
+            self.log(response.request, False, 'request')
+            self.log(response, False, 'response')
             self.check_for_alert(response)
             return
         for element in arr:
