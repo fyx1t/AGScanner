@@ -1,16 +1,24 @@
 from bs4 import BeautifulSoup
-from requests import get
-from json import load
 
 def check_in_html(endpoint, node) -> bool:
     """
     
     Здесь работают проверочные правила:
     """
-    html_data = get(load(open('configs/main.json', 'r'))['domain'] + endpoint)
+    # Заглушка для проверки работы скрипта
+    html_data = """
+    <html>
+        <body>
+            <form action="/123" method="POST">
+                <input type="text" name="name">
+                <textarea name="comment"></textarea>
+            </form>
+        </body>
+    </html>
+    """
     executor = RuleExecutor()
     executor.rule_type = 'CHECK'
-    executor.execute(node, html_data.content.decode())
+    executor.execute(node, html_data)
     return executor.check()
 
 def get_in_html(endpoint, node) -> dict:
@@ -18,10 +26,20 @@ def get_in_html(endpoint, node) -> dict:
     
     Здесь работают захватывающие правила
     """
-    html_data = get(load(open('configs/main.json', 'r'))['domain'] + endpoint)
+    # Заглушка для проверки работы скрипта
+    html_data = """
+    <html>
+        <body>
+            <form action="/123" method="POST">
+                <input type="text" name="name">
+                <textarea name="comment"></textarea>
+            </form>
+        </body>
+    </html>
+    """
     executor = RuleExecutor()
     executor.rule_type = 'GRUB'
-    executor.execute(node, html_data.content.decode())
+    executor.execute(node, html_data)
     return executor.return_data
 
 
@@ -90,32 +108,24 @@ class RuleExecutor:
                     self.__execute_node(child, prev_node=node, html_space_level=html_space_level+1)
         elif node.node_type == 'Entity':
             self._search_entity(node, prev_node, html_space_level)
-        if node.logic_operator:
+        elif node.logic_operator:
             self.collection.append(node.logic_operator)
 
     def _search_entity(self, node, prev_node, html_space_level):
-        # POKA SPECIALNO BERETSYA TOLKO PERVOE VHOZHDENIE, POTOM DOBAVIT OBRABOTKU VSEH VHOZHDENIY
         if prev_node.value == 'TAG':
             soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
             if '*' in node.value:
                 self.html_spaces[html_space_level+1] = ''
                 for value in node.value.split('*'):
-                    found = str(soup.find_all(value)).replace('[', '').replace(']', '')
-                    if ', ' in found:
-                        for found_element in found.split(', '):
-                            self.html_spaces[html_space_level+1] += found_element + '|#|' if found_element else ''
-                    else:
-                        self.html_spaces[html_space_level+1] += found + '|#|' if found else ''
+                    self.html_spaces[html_space_level+1] += str(soup.find_all(value)) + '|#|'
             else:
-                self.html_spaces[html_space_level+1] = str(soup.find_all(node.value)).replace('[', '').replace(']', '')
+                self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
             if self.rule_type == 'CHECK':
                 # 2 is because of [] symbols:
                 if len(self.html_spaces[html_space_level + 1]) > 2:
                     self.collection.append(True)
                 else:
                     self.collection.append(False)
-            elif self.rule_type == 'GRUB':
-                pass
         elif prev_node.value == 'ATRIBUTE':
             if '|#|' in str(self.html_spaces[html_space_level]):
                 splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')

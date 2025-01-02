@@ -40,9 +40,5 @@ def run(endpoint: str) -> dict:
             raise ValueError('Wrong checktype in rule')
         return output
 
-    
-    
-
-
 if __name__ == '__main__':
     pass
