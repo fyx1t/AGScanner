@@ -19,13 +19,17 @@ class Fuzzer(BaseFuzzer):
         return super().load_payloads(filenames, '/'.join(__file__.split('/')[0:-1]))
     
     def save_standart_outputs(self, data):
+        """
+        
+        Функция делает предварительные запросы к серверу для сохранения стандартных ответов от него
+        """
         if data['method'] == 'GET':
             pass
         elif data['method'].upper() == 'POST':
             headers = {}
             for header in data['headers'].split('; '):
                 headers[header.split(': ')[0]] = header.split(': ')[1]
-            response = requests.post(f'{self.get_domain()}{data['url']}', ''.join(f"{element}=1ks92sll1lak12suod9sa12jln&" for element in data['data'])[:-1], headers=headers)
+            response = requests.post(f"{self.get_domain()}{data['url']}", ''.join(f"{element}=1ks92sll1lak12suod9sa12jln&" for element in data['data'])[:-1], headers=headers)
             self.standart_outputs['bad'] = response
 
     def check_for_alert(self, response):
@@ -42,7 +46,7 @@ class Fuzzer(BaseFuzzer):
             for payload_key in data['data']:
                 body_data += f'{payload_key}={current_combination[i]}&'
                 i += 1
-            response = requests.post(f'{self.get_domain()}{data['url']}', body_data[:-1], headers=headers)
+            response = requests.post(f"{self.get_domain()}{data['url']}", body_data[:-1], headers=headers)
             self.log(response.request, False, 'request')
             self.log(response, False, 'response')
             self.check_for_alert(response)
