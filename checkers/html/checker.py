@@ -1,24 +1,21 @@
 from bs4 import BeautifulSoup
+import requests
+from json import load
 
 def check_in_html(endpoint, node) -> bool:
     """
     
     Здесь работают проверочные правила:
     """
-    # Заглушка для проверки работы скрипта
-    html_data = """
-    <html>
-        <body>
-            <form action="/123" method="POST">
-                <input type="text" name="name">
-                <textarea name="comment"></textarea>
-            </form>
-        </body>
-    </html>
-    """
+    with open('configs/main.json', 'r') as configs_file:
+        domain = load(configs_file)['domain']
+    html_data = requests.get(domain + endpoint).content.decode()
     executor = RuleExecutor()
     executor.rule_type = 'CHECK'
     executor.execute(node, html_data)
+    node.print_tree()
+    print(executor.collection)
+    print(executor.check())
     return executor.check()
 
 def get_in_html(endpoint, node) -> dict:
@@ -26,17 +23,9 @@ def get_in_html(endpoint, node) -> dict:
     
     Здесь работают захватывающие правила
     """
-    # Заглушка для проверки работы скрипта
-    html_data = """
-    <html>
-        <body>
-            <form action="/123" method="POST">
-                <input type="text" name="name">
-                <textarea name="comment"></textarea>
-            </form>
-        </body>
-    </html>
-    """
+    with open('configs/main.json', 'r') as configs_file:
+        domain = load(configs_file)['domain']
+    html_data = requests.get(domain + endpoint).content.decode()
     executor = RuleExecutor()
     executor.rule_type = 'GRUB'
     executor.execute(node, html_data)
@@ -50,6 +39,7 @@ class RuleExecutor:
         self.rule_type = ''
         self.html_spaces = {}
         self.return_data = []
+        self.need_to_check = False
 
     def check(self) -> bool:
         """
@@ -108,8 +98,9 @@ class RuleExecutor:
                     self.__execute_node(child, prev_node=node, html_space_level=html_space_level+1)
         elif node.node_type == 'Entity':
             self._search_entity(node, prev_node, html_space_level)
-        elif node.logic_operator:
+        if node.logic_operator:
             self.collection.append(node.logic_operator)
+            self.need_to_check = True
 
     def _search_entity(self, node, prev_node, html_space_level):
         if prev_node.value == 'TAG':
@@ -117,7 +108,9 @@ class RuleExecutor:
             if '*' in node.value:
                 self.html_spaces[html_space_level+1] = ''
                 for value in node.value.split('*'):
-                    self.html_spaces[html_space_level+1] += str(soup.find_all(value)) + '|#|'
+                    if str(soup.find_all(value)) != '[]':
+                        self.html_spaces[html_space_level+1] += str(soup.find_all(value)) + '|#|'
+                self.html_spaces[html_space_level+1] = self.html_spaces[html_space_level+1].replace(', ', '|#|')
             else:
                 self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
             if self.rule_type == 'CHECK':
@@ -126,6 +119,16 @@ class RuleExecutor:
                     self.collection.append(True)
                 else:
                     self.collection.append(False)
+                if self.need_to_check:
+                    arg_1 = self.collection[-3]
+                    arg_2 = self.collection[-1]
+                    operator = self.collection[-2]
+                    self.collection = self.collection[:-3]
+                    if operator == '|':
+                        self.collection.append(arg_1 or arg_2)
+                    elif operator == '&':
+                        self.collection.append(arg_1 and arg_2)
+                    self.need_to_check = False
         elif prev_node.value == 'ATRIBUTE':
             if '|#|' in str(self.html_spaces[html_space_level]):
                 splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')
