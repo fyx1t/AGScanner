@@ -27,7 +27,6 @@ class Fuzzer(BaseFuzzer):
 
     def load_payloads(self, filenames):
         return super().load_payloads(filenames, '/'.join(__file__.split('/')[0:-1]))
-
     
     def pretty_print_POST(self, req):
         self.log('{}\n{}\r\n{}\r\n\r\n{}'.format(

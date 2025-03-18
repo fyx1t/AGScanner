@@ -28,7 +28,7 @@ class Fuzzer:
                     if hasattr(fuzzer_class, 'work') and callable(getattr(fuzzer_class, 'work')):
                         return True, ''
                     return False, f'Основной класс фаззера {module} не имеет установочной функции work'
-                return False, f'Фаззер {module} не имеет установочной функции run'
+                return False, f'Фаззер {module} имеет установочной функции run'
             return False, f'Основной класс фаззера {module} не наследуется от базового класса BaseFuzzer'
         return False, f'Фаззер {module} не имеет класса Fuzzer'
 

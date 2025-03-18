@@ -10,18 +10,22 @@ def initialize_spy():
         print(f"[SPY MODULE] {e}")
 
 def initialize_analyzer():
-    # try:
+    try:
+        print('ANALYZER START')
         analyzer = an.Analyzer()
         analyzer.identify_entry_points()
-    # except Exception as e:
-    #     print(f"[ANALYZER MODULE] {e}")
+        print('ANALYZER STOP')
+    except Exception as e:
+        print(f"[ANALYZER MODULE] {e}")
 
 def initialize_fuzzer():
-    # try:
+    try:
+        print('FUZZER START')
         fuzzer = fuz.Fuzzer()
         fuzzer.fuzz()
-    # except Exception as e:
-    #     print(f"[FUZZER MODULE] {e}")
+        print('FUZZER STOP')
+    except Exception as e:
+        print(f"[FUZZER MODULE] {e}")
 
 def run():
     initialize_spy()  # Инициализация шпиона
