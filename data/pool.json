@@ -1,5 +1,4 @@
 {
-    "/": [],
     "/login": [
         {
             "claster": "confidentiality",
@@ -24,32 +23,6 @@
             "name": "xss",
             "placeholder": "BODY",
             "url": "/login"
-        }
-    ],
-    "/register": [
-        {
-            "claster": "confidentiality",
-            "data": [
-                "login",
-                "password"
-            ],
-            "headers": "Content-Type: application/x-www-form-urlencoded",
-            "method": "post",
-            "name": "sqli",
-            "placeholder": "BODY",
-            "url": "/register"
-        },
-        {
-            "claster": "confidentiality",
-            "data": [
-                "login",
-                "password"
-            ],
-            "headers": "Content-Type: application/x-www-form-urlencoded",
-            "method": "post",
-            "name": "xss",
-            "placeholder": "BODY",
-            "url": "/register"
         }
     ]
 }
