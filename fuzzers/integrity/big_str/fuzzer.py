@@ -1,6 +1,6 @@
 from fuzzers.base_fuzzer import BaseFuzzer
 
-PAYLOADS_COLLECTIONS=['basic', 'mysql']
+PAYLOADS_COLLECTIONS=['basic']
 
 def run(endpoint: str, data: dict):
     fuzzer = Fuzzer('', PAYLOADS_COLLECTIONS)
