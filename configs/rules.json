@@ -6,6 +6,10 @@
             {
                 "claster": "confidentiality",
                 "name": "sqli"
+            },
+            {
+                "claster": "integrity",
+                "name": "big_str"
             }
         ],
         "data": {
@@ -23,6 +27,10 @@
             {
                 "claster": "confidentiality",
                 "name": "sqli"
+            },
+            {
+                "claster": "integrity",
+                "name": "big_str"
             }
         ],
         "data": {
