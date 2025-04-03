@@ -81,7 +81,6 @@ class BaseFuzzer(ABC):
     @abstractmethod
     def load_payloads(self, collections: list, path: str) -> dict:
         payloads = {}
-        import os
 
         for collection in collections:
             with open(path + '/payloads/' + collection + '.txt', 'r') as file:
@@ -93,6 +92,7 @@ class BaseFuzzer(ABC):
 
     def check_for_alert(self, response):
         if response.status_code != 200 and response.status_code != self.standart_outputs['bad'].status_code:
+            self.log(response.request, True, 'request')
             self.log(response, True, 'response')
 
     def get_domain(self) -> str:
@@ -100,10 +100,21 @@ class BaseFuzzer(ABC):
             return load(configs_file)['domain']
     
     def log(self, object, alert: str = False, http_type: str = 'request'):
+        from pathlib import Path
+        import os
+
         log = '{}\n{}\r\n{}\r\n\r\n{}'
-        path = 'logs/'
-        if alert:
-            path += 'alerts/'
+        path = 'logs'
+
+        # Проверяем наличие директорий:
+        if not Path(path).is_dir():
+            os.mkdir('logs')
+        
+        # Создаем папку с логами под текущую сессию работы инструмента:
+        folder_name = DATETIME
+        if not Path(f'{path}/{folder_name}').is_dir():
+            os.mkdir(f'{path}/{folder_name}')
+
         if http_type == 'request':
             log = log.format(
                 '-----------REQUEST-----------',
@@ -118,7 +129,7 @@ class BaseFuzzer(ABC):
                 '\r\n'.join('{}: {}'.format(k, v) for k, v in object.headers.items()),
                 object.content.decode(),
             )
-        with open(f'{path}{DATETIME}.log', 'a') as log_file:
+        with open(f'{path}/{folder_name}/alerts.log' if alert else f'{path}/{folder_name}/traffic.log', 'a') as log_file:
             log_file.write(f'{log}\n')
 
 
