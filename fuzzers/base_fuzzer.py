@@ -108,7 +108,7 @@ class BaseFuzzer(ABC):
 
         # Проверяем наличие директорий:
         if not Path(path).is_dir():
-            os.mkdir('logs')
+            os.mkdir(path)
         
         # Создаем папку с логами под текущую сессию работы инструмента:
         folder_name = DATETIME
