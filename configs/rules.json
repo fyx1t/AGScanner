@@ -22,23 +22,19 @@
     },
     {
         "name": "header_content_type",
-        "checkrule": "?HTTP%TAG/form+%TAG/input|%TAG/textarea|%TAG/text",
+        "checkrule": "?HTTP%HEADER/content-type",
         "fuzzers": [
             {
-                "claster": "confidentiality",
-                "name": "sqli"
-            },
-            {
                 "claster": "integrity",
-                "name": "big_str"
+                "name": "false_content-type"
             }
         ],
         "data": {
-            "url": "!HTML%TAG/form+%ATRIBUTE/action",
-            "data": "!HTML%TAG/form+%TAG/input*textarea*text+%ATRIBUTE/name",
-            "placeholder": "BODY",
-            "headers": "Content-Type: application/x-www-form-urlencoded",
-            "method": "!HTML%TAG/form+%ATRIBUTE/method"
+            "url": "SELF",
+            "data": "SELF",
+            "placeholder": "Content-Type",
+            "headers": "",
+            "method": "SELF"
         }
     }
 ]
