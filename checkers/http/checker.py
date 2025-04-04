@@ -12,9 +12,7 @@ def check_in_http(endpoint, node) -> bool:
     executor = RuleExecutor()
     executor.rule_type = 'CHECK'
     executor.execute(node, html_data)
-    node.print_tree()
-    print(executor.collection)
-    print(executor.check())
+    # node.print_tree()
     return executor.check()
 
 def get_in_http(endpoint, node) -> dict:

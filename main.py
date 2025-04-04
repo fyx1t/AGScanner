@@ -3,19 +3,16 @@ from modules import spy as sp
 from modules import fuzzer as fuz
 
 def initialize_spy():
-    try:
-        spy = sp.Spy()
-        spy.conduct_reconnaissance()
-    except Exception as e:
-        print(f"[SPY MODULE] {e}")
+    print('SPY START')
+    spy = sp.Spy()
+    spy.conduct_reconnaissance()
+    print('SPY STOP')
 
 def initialize_analyzer():
-
     print('ANALYZER START')
     analyzer = an.Analyzer()
     analyzer.identify_entry_points()
     print('ANALYZER STOP')
-
 
 def initialize_fuzzer():
     print('FUZZER START')

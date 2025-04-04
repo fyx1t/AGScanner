@@ -40,7 +40,7 @@ class Analyzer:
                                 'method': accepted_rules[accepted_rule]['method'][0],
                                 'url': accepted_rules[accepted_rule]['url'][0]
                             })
-        print(fuzzers_pool)
+        print("found fuzzers:", fuzzers_pool)
         return fuzzers_pool
 
     def identify_entry_points(self):

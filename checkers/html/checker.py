@@ -38,8 +38,6 @@ def get_in_html(endpoint, node) -> dict:
             if executor.return_data[i] == CSRF['name']:
                 executor.return_data[i] += '=' + CSRF['value']
 
-    print(executor.return_data)
-    print(CSRF)
     return executor.return_data
 
 

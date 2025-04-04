@@ -33,10 +33,6 @@ def make_request(method: str, url: str, data=None, headers=None):
     with open('configs/web.json', 'r') as cookies_file:
         cookies = load(cookies_file)['HTTP']['HEADERS']['COOKIES']
 
-    print('headers:', headers if headers else None)
-    print('data:', data if data else None)
-    print('method:', method)
-
     # Загружаем и добавляем стандартные HTTP заголовки (но они будут перезаписаны теми, которые будут поданы в аргументе функции):
     with open('configs/web.json', 'r') as cookies_file:
         basic_headers = load(cookies_file)['HTTP']['HEADERS']['BASIC']
