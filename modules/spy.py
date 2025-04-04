@@ -9,7 +9,6 @@ class Spy:
         path = 'data'
         if not Path(path).is_dir():
             os.mkdir(path)
-        
 
 
 if __name__ == '__main__':
