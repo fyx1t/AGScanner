@@ -2,6 +2,7 @@ from json import load
 from helpers import import_module
 from fuzzers.base_fuzzer import BaseFuzzer
 
+
 class Fuzzer:
     def __init__(self):
         self.__load_pool()
@@ -46,7 +47,8 @@ class Fuzzer:
                     raise AttributeError(state_message)
         # Запускаем фаззеры:
         for fuzzer in self.usable_fuzzers.keys():
-            self.results.append(self.usable_fuzzers[fuzzer]['fuzzer_module'].run(endpoint, self.usable_fuzzers[fuzzer]['data']))
+            self.results.append(self.usable_fuzzers[fuzzer]['fuzzer_module'].run(self.usable_fuzzers[fuzzer]['data']))
+
 
 if __name__ == '__main__':
     pass
