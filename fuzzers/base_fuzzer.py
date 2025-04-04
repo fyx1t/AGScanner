@@ -7,10 +7,14 @@ DATETIME = datetime.datetime.now()
 
 class BaseFuzzer(ABC):
     @abstractmethod
-    def __init__(self, url, payloads_collections):
+    def __init__(self, payloads_collections, location):
         super().__init__()
-        self.url = url
         self.payloads_collections = payloads_collections
+        self.standart_outputs = {
+            "good": None,
+            "bad": None
+        }
+        self.location = location
 
     def save_standart_outputs(self, data):
         """
@@ -23,7 +27,6 @@ class BaseFuzzer(ABC):
             headers = {}
             for header in data['headers'].split('; '):
                 headers[header.split(': ')[0]] = header.split(': ')[1]
-            print(headers)
             response = make_request('POST', f"{self.get_domain()}{data['url']}", ''.join(f"{element}=1ks92sll1lak12suod9sa12jln&" for element in data['data'])[:-1], headers=headers)
             self.standart_outputs['bad'] = response
 
@@ -33,22 +36,23 @@ class BaseFuzzer(ABC):
         Аргумент data - это данные, которые передаются на вход.
         Возвращает обработанные или измененные данные.
         """
+        print(f'starting {self.location}')
         self.save_standart_outputs(data)
-        # print(f'[INFO] - FUZZING {data["url"]}')
-        payloads = self.load_payloads(self.payloads_collections)
+        payloads = self.load_payloads(self.payloads_collections, self.location)
         if data['method'].upper() == 'GET':
             pass
         elif data['method'].upper() == 'POST':
             if data['placeholder'] == 'BODY':
                 for payloads_collection in payloads:
-                    # print(len(payloads[payloads_collection]) ** len(data['data']))
-
                     # Удостоверимся, что инструмент не учитывает для пэйлоудов позицию ту, где стоит знак = (что подразумевает устойчивое значение в нем, например для csrf токена)
                     n = len(data['data'])
                     for key in data['data']:
                         if '=' in key:
                             n -= 1
                     self.fuzz_through_payloads_combinations(payloads[payloads_collection], n, data)
+        else:
+            print('FOUND!')
+        print(f'stoping {self.location}')
 
     def fuzz_through_payloads_combinations(self, arr, n, data, current_combination=[], index=0):
         if index == n:
@@ -63,13 +67,8 @@ class BaseFuzzer(ABC):
                 else:
                     body_data += f'{payload_key}={current_combination[i]}&'
                     i += 1
-                print(body_data)
             response = make_request('POST', f'{self.get_domain()}{data["url"]}', body_data[:-1], headers=headers)
-
-            print('AFTER REQUEST--------------------')
-            print(response.request.method)
-            print(response.request)
-            print(response.text)
+            print(f'{self.get_domain()}{data["url"]} --> {body_data[:-1]} --> {headers} --> POST')
 
             self.log(response.request, False, 'request')
             self.log(response, False, 'response')
@@ -78,7 +77,6 @@ class BaseFuzzer(ABC):
         for element in arr:
             self.fuzz_through_payloads_combinations(arr, n, data, current_combination + [element], index + 1)
 
-    @abstractmethod
     def load_payloads(self, collections: list, path: str) -> dict:
         payloads = {}
 

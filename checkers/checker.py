@@ -2,6 +2,7 @@ from parsers import rules_parser
 from json import load
 # Import all local checkers:
 from checkers.html.checker import check_in_html, get_in_html
+from checkers.http.checker import check_in_http, get_in_http
 
 def run(endpoint: str) -> dict:
     output = {}
@@ -23,7 +24,6 @@ def run(endpoint: str) -> dict:
         # Check checktype (HTML, HTTP, API etc...) and start checking:
         if check_node.children[0].value == 'HTML':
             if check_in_html(endpoint, check_node):
-                # print(check_in_html(endpoint, check_node))
                 # Add check for every rule (HTML, HTTP, API):
                 output[rule_instance['name']] = {
                     "url": get_in_html(endpoint, url_node) if url_node.children else rule_instance['data']['url'],
@@ -33,12 +33,20 @@ def run(endpoint: str) -> dict:
                     "method": get_in_html(endpoint, method_node) if method_node.children else rule_instance['data']['method']
                 }
         elif check_node.children[0].value == 'HTTP':
-            pass
+            if check_in_http(endpoint, check_node):
+                # Add check for every rule (HTML, HTTP, API):
+                output[rule_instance['name']] = {
+                    "url": get_in_http(endpoint, url_node) if url_node.children else rule_instance['data']['url'],
+                    "data": get_in_http(endpoint, data_node) if data_node.children else rule_instance['data']['data'],
+                    "placeholder": get_in_http(endpoint, placeholder_node) if placeholder_node.children else rule_instance['data']['placeholder'],
+                    "headers": rule_instance['data']['headers'],# "headers": get_in_html(endpoint, headers_node) if headers_node.children else rule_instance['data']['headers'],
+                    "method": get_in_http(endpoint, method_node) if method_node.children else rule_instance['data']['method']
+                }
         elif check_node.children[0].value == 'API':
             pass
         else:
             raise ValueError('Wrong checktype in rule')
-        return output
+    return output
 
 if __name__ == '__main__':
     pass
