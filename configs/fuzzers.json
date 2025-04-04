@@ -23,6 +23,12 @@
                 "filename": "fuzzer.py",
                 "readme": "README.md",
                 "payloads_folder": "payloads"
+            },
+            "false_content-type": {
+                "path": "fuzzers/integrity/false_content-type",
+                "filename": "fuzzer.py",
+                "readme": "README.md",
+                "payloads_folder": "payloads"
             }
         }
     },
