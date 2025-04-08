@@ -22,7 +22,7 @@
     },
     {
         "name": "header_content_type",
-        "checkrule": "?HTTP%HEADER/content-type",
+        "checkrule": "?HTTP%HEADER/content-type+%VALUE/json",
         "fuzzers": [
             {
                 "claster": "integrity",
@@ -31,10 +31,10 @@
         ],
         "data": {
             "url": "SELF",
-            "data": "SELF",
-            "placeholder": "Content-Type",
-            "headers": "",
-            "method": "SELF"
+            "data": "",
+            "placeholder": "HEADER",
+            "headers": "Content-Type",
+            "method": "GET"
         }
     }
 ]
