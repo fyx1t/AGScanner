@@ -44,7 +44,7 @@ def make_request(method: str, url: str, data=None, headers=None):
                 headers[header_key] = basic_headers[header_key]
 
     if method == 'GET':
-        return requests.get(url, data=data if data else None, cookies=cookies, headers=headers if headers else None)
+        return requests.get(url, cookies=cookies, headers=headers if headers else None)
     elif method == 'POST':
         return requests.post(url, data=data if data else None, cookies=cookies, headers=headers if headers else None)
 
