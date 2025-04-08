@@ -14,7 +14,7 @@ class Node:
         return f"Node({self.node_type}, {self.value})"
     
     def print_tree(self, level=0):
-        # print(" " * (level * 2) + f"{self.node_type}: {self.value}")
+        print(" " * (level * 2) + f"{self.node_type}: {self.value}")
         for child in self.children:
             child.print_tree(level + 1)
             if child.logic_operator:

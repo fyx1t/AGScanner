@@ -1,5 +1,4 @@
 from json import load, dumps
-from parsers import rules_parser
 from checkers import checker
 
 class Analyzer:
@@ -37,8 +36,8 @@ class Analyzer:
                                 'headers': accepted_rules[accepted_rule]['headers'],
                                 'data': accepted_rules[accepted_rule]['data'],
                                 'placeholder': accepted_rules[accepted_rule]['placeholder'],
-                                'method': accepted_rules[accepted_rule]['method'][0],
-                                'url': accepted_rules[accepted_rule]['url'][0]
+                                'method': accepted_rules[accepted_rule]['method'],
+                                'url': accepted_rules[accepted_rule]['url']
                             })
         print("found fuzzers:", fuzzers_pool)
         return fuzzers_pool
