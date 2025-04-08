@@ -25,11 +25,11 @@ class Fuzzer:
         if hasattr(module, 'Fuzzer'):
             fuzzer_class = getattr(module, 'Fuzzer')
             if issubclass(fuzzer_class, BaseFuzzer):
-                if hasattr(module, 'run'):
+                # if hasattr(module, 'run'):
                     if hasattr(fuzzer_class, 'work') and callable(getattr(fuzzer_class, 'work')):
                         return True, ''
                     return False, f'Основной класс фаззера {module} не имеет установочной функции work'
-                return False, f'Фаззер {module} имеет установочной функции run'
+                # return False, f'Фаззер {module} имеет установочной функции run'
             return False, f'Основной класс фаззера {module} не наследуется от базового класса BaseFuzzer'
         return False, f'Фаззер {module} не имеет класса Fuzzer'
 
@@ -46,8 +46,9 @@ class Fuzzer:
                 if not implementation_state:
                     raise AttributeError(state_message)
         # Запускаем фаззеры:
+        print(self.usable_fuzzers)
         for fuzzer in self.usable_fuzzers.keys():
-            self.results.append(self.usable_fuzzers[fuzzer]['fuzzer_module'].run(self.usable_fuzzers[fuzzer]['data']))
+            self.results.append(self.usable_fuzzers[fuzzer]['fuzzer_module'].Fuzzer().work(self.usable_fuzzers[fuzzer]['data']))
 
 
 if __name__ == '__main__':

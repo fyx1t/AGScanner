@@ -39,8 +39,12 @@ class BaseFuzzer(ABC):
         print(f'starting {self.location}')
         self.save_standart_outputs(data)
         payloads = self.load_payloads(self.payloads_collections, self.location)
+        print(data)
         if data['method'].upper() == 'GET':
-            pass
+            if data['placeholder'] == 'HEADER':
+                for payloads_collection in payloads:
+                    n = 1
+                    self.fuzz_through_payloads_combinations(payloads[payloads_collection], n, data, method='GET')
         elif data['method'].upper() == 'POST':
             if data['placeholder'] == 'BODY':
                 for payloads_collection in payloads:
@@ -51,31 +55,43 @@ class BaseFuzzer(ABC):
                             n -= 1
                     self.fuzz_through_payloads_combinations(payloads[payloads_collection], n, data)
         else:
-            print('FOUND!')
+            print('WRONG METHOD IN BASE_FUZZER!')
         print(f'stoping {self.location}')
 
-    def fuzz_through_payloads_combinations(self, arr, n, data, current_combination=[], index=0):
+    def fuzz_through_payloads_combinations(self, arr, n, data, current_combination=[], index=0, method='POST'):
         if index == n:
-            headers = {}
-            for header in data['headers'].split('; '):
-                headers[header.split(': ')[0]] = header.split(': ')[1]
-            body_data = ''
             i = 0
-            for payload_key in data['data']:
-                if '=' in payload_key:
-                    body_data += f'{payload_key}&'
-                else:
-                    body_data += f'{payload_key}={current_combination[i]}&'
+            body_data = ''
+            headers = {}
+            if data['headers']:
+                try:
+                    for header in data['headers'].split('; '):
+                        headers[header.split(': ')[0]] = header.split(': ')[1]
+                    for payload_key in data['data']:
+                        if '=' in payload_key:
+                            body_data += f'{payload_key}&'
+                        else:
+                            body_data += f'{payload_key}={current_combination[i]}&'
+                            i += 1
+                except IndexError:
+                    print(current_combination)
+                    headers = {data['headers']: current_combination[i]}
                     i += 1
-            response = make_request('POST', f'{self.get_domain()}{data["url"]}', body_data[:-1], headers=headers)
-            print(f'{self.get_domain()}{data["url"]} --> {body_data[:-1]} --> {headers} --> POST')
+                        
+            if method == 'POST':
+                response = make_request('POST', f'{self.get_domain()}{data["url"]}', body_data[:-1], headers=headers)
+                print(f'{self.get_domain()}{data["url"]} --> {body_data[:-1]} --> {headers} --> POST')
+            elif method == 'GET':
+                response = make_request('GET', f'{self.get_domain()}{data["url"]}', headers=headers)
+                print(f'{self.get_domain()}{data["url"]} --> {headers} --> GET')
 
             self.log(response.request, False, 'request')
             self.log(response, False, 'response')
             self.check_for_alert(response)
             return
+        
         for element in arr:
-            self.fuzz_through_payloads_combinations(arr, n, data, current_combination + [element], index + 1)
+            self.fuzz_through_payloads_combinations(arr, n, data, current_combination + [element], index + 1, method=method)
 
     def load_payloads(self, collections: list, path: str) -> dict:
         payloads = {}
