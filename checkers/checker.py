@@ -21,27 +21,31 @@ def run(endpoint: str) -> dict:
         placeholder_node: rules_parser.Node = rules_parser.get_node(rule_instance['data']['placeholder'])
         # headers_node: rules_parser.Node = rules_parser.get_node(rule_instance['data']['headers'])
         method_node: rules_parser.Node = rules_parser.get_node(rule_instance['data']['method'])
+
+        check_node.print_tree()
+
         # Check checktype (HTML, HTTP, API etc...) and start checking:
         if check_node.children[0].value == 'HTML':
             if check_in_html(endpoint, check_node):
                 # Add check for every rule (HTML, HTTP, API):
                 output[rule_instance['name']] = {
-                    "url": get_in_html(endpoint, url_node) if url_node.children else rule_instance['data']['url'],
+                    "url": get_in_html(endpoint, url_node)[0] if url_node.children else rule_instance['data']['url'],
                     "data": get_in_html(endpoint, data_node) if data_node.children else rule_instance['data']['data'],
                     "placeholder": get_in_html(endpoint, placeholder_node) if placeholder_node.children else rule_instance['data']['placeholder'],
                     "headers": rule_instance['data']['headers'],# "headers": get_in_html(endpoint, headers_node) if headers_node.children else rule_instance['data']['headers'],
-                    "method": get_in_html(endpoint, method_node) if method_node.children else rule_instance['data']['method']
+                    "method": get_in_html(endpoint, method_node)[0] if method_node.children else rule_instance['data']['method']
                 }
         elif check_node.children[0].value == 'HTTP':
             if check_in_http(endpoint, check_node):
                 # Add check for every rule (HTML, HTTP, API):
                 output[rule_instance['name']] = {
-                    "url": get_in_http(endpoint, url_node) if url_node.children else rule_instance['data']['url'],
+                    "url": get_in_http(endpoint, url_node) if url_node.children else rule_instance['data']['url'] if rule_instance['data']['url'] != 'SELF' else endpoint,
                     "data": get_in_http(endpoint, data_node) if data_node.children else rule_instance['data']['data'],
                     "placeholder": get_in_http(endpoint, placeholder_node) if placeholder_node.children else rule_instance['data']['placeholder'],
                     "headers": rule_instance['data']['headers'],# "headers": get_in_html(endpoint, headers_node) if headers_node.children else rule_instance['data']['headers'],
                     "method": get_in_http(endpoint, method_node) if method_node.children else rule_instance['data']['method']
                 }
+            print(output)
         elif check_node.children[0].value == 'API':
             pass
         else:

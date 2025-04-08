@@ -156,6 +156,9 @@ class RuleExecutor:
                         pass
                     elif self.rule_type == 'GRUB':
                         if data and node.value in [*data.keys()]:
+                            print(self.return_data)
+                            print(data)
+                            print('123123123123')
                             self.return_data.append(data[node.value])
             else:
                 soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
@@ -165,6 +168,9 @@ class RuleExecutor:
                 elif self.rule_type == 'GRUB':
                     if data and node.value in [*data.keys()]:
                         self.return_data.append(data[node.value])
+                        print(self.return_data)
+                        print(data)
+                        print('123123123123')
 
 if __name__ == '__main__':
     pass

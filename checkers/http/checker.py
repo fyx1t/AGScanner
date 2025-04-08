@@ -8,11 +8,11 @@ def check_in_http(endpoint, node) -> bool:
     """
     with open('configs/main.json', 'r') as configs_file:
         domain = load(configs_file)['domain']
-    html_data = make_request('GET', domain + endpoint).content.decode()
+    response = make_request('GET', domain + endpoint)
+    response.headers = {k.lower(): v.lower() if isinstance(v, str) else v for k, v in response.headers.items()}
     executor = RuleExecutor()
     executor.rule_type = 'CHECK'
-    executor.execute(node, html_data)
-    # node.print_tree()
+    executor.execute(node, response)
     return executor.check()
 
 def get_in_http(endpoint, node) -> dict:
@@ -22,10 +22,10 @@ def get_in_http(endpoint, node) -> dict:
     """
     with open('configs/main.json', 'r') as configs_file:
         domain = load(configs_file)['domain']
-    html_data = make_request('GET', domain + endpoint).content.decode()
+    response = make_request('GET', domain + endpoint)
     executor = RuleExecutor()
     executor.rule_type = 'GRUB'
-    executor.execute(node, html_data)
+    executor.execute(node, response)
     return executor.return_data
 
 
@@ -34,9 +34,10 @@ class RuleExecutor:
         self.collection = []
         self.htmls = []
         self.rule_type = ''
-        self.html_spaces = {}
         self.return_data = []
         self.need_to_check = False
+        self.response = None
+        self.header_name = ''
 
     def check(self) -> bool:
         """
@@ -73,79 +74,50 @@ class RuleExecutor:
                         return False
         return True
 
-    def execute(self, root, html_data=None):
+    def execute(self, root, response=None):
         """
         
         Метод для выполнения всех правил по дереву узлов
         """
-        self.html_spaces[0] = html_data
-        self.__execute_node(root, 0)
+        self.response = response
+        self.__execute_node(root)
 
-    def __execute_node(self, node, html_space_level, prev_node=None):
+    def __execute_node(self, node, prev_node=None):
         if node.node_type == 'Root':
-            self.__execute_node(node.children[0], html_space_level=html_space_level)
+            self.__execute_node(node.children[0])
         elif node.node_type == 'SearchType':
             for child in node.children:
-                self.__execute_node(child, html_space_level=html_space_level)
+                self.__execute_node(child)
         elif node.node_type == 'SearchDetail':
             for child in node.children:
                 if child.node_type == 'Entity':
-                    self.__execute_node(child, prev_node=node, html_space_level=html_space_level)
+                    self.__execute_node(child, prev_node=node)
                 else:
-                    self.__execute_node(child, prev_node=node, html_space_level=html_space_level+1)
+                    self.__execute_node(child, prev_node=node)
         elif node.node_type == 'Entity':
-            self._search_entity(node, prev_node, html_space_level)
+            self._search_entity(node, prev_node)
         if node.logic_operator:
             self.collection.append(node.logic_operator)
             self.need_to_check = True
 
-    def _search_entity(self, node, prev_node, html_space_level):
-        if prev_node.value == 'TAG':
-            soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
-            if '*' in node.value:
-                self.html_spaces[html_space_level+1] = ''
-                for value in node.value.split('*'):
-                    if str(soup.find_all(value)) != '[]':
-                        self.html_spaces[html_space_level+1] += str(soup.find_all(value)) + '|#|'
-                self.html_spaces[html_space_level+1] = self.html_spaces[html_space_level+1].replace(', ', '|#|')
-            else:
-                self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
+    def _search_entity(self, node, prev_node):
+        if prev_node.value == 'HEADER':
             if self.rule_type == 'CHECK':
-                # 2 is because of [] symbols:
-                if len(self.html_spaces[html_space_level + 1]) > 2:
+                if node.value.lower() in self.response.headers.keys():
                     self.collection.append(True)
+                    self.header_name = node.value.lower()
                 else:
                     self.collection.append(False)
-                if self.need_to_check:
-                    arg_1 = self.collection[-3]
-                    arg_2 = self.collection[-1]
-                    operator = self.collection[-2]
-                    self.collection = self.collection[:-3]
-                    if operator == '|':
-                        self.collection.append(arg_1 or arg_2)
-                    elif operator == '&':
-                        self.collection.append(arg_1 and arg_2)
-                    self.need_to_check = False
-        elif prev_node.value == 'ATRIBUTE':
-            if '|#|' in str(self.html_spaces[html_space_level]):
-                splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')
-                del splitted_html_spaces[-1]
-                for splitted_html_space in splitted_html_spaces:
-                    soup = BeautifulSoup(splitted_html_space, 'html.parser')
-                    data = soup.find().attrs
-                    if self.rule_type == 'CHECK':
-                        pass
-                    elif self.rule_type == 'GRUB':
-                        if data and node.value in [*data.keys()]:
-                            self.return_data.append(data[node.value])
-            else:
-                soup = BeautifulSoup(str(self.html_spaces[html_space_level]), 'html.parser')
-                data = soup.find().attrs
-                if self.rule_type == 'CHECK':
-                    pass
-                elif self.rule_type == 'GRUB':
-                    if data and node.value in [*data.keys()]:
-                        self.return_data.append(data[node.value])
+        elif prev_node.value == 'DATA':
+            pass
+        elif prev_node.value == 'VALUE':
+            if self.rule_type == 'CHECK':
+                if self.header_name in [key for key in self.response.headers.keys()]:
+                    if node.value.lower() in self.response.headers[self.header_name]:
+                        self.collection.append(True)
+                    else:
+                        self.collection.append(False)
+
 
 if __name__ == '__main__':
     pass
