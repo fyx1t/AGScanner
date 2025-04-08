@@ -15,3 +15,9 @@ It allows you to perform a complete security audit of a website or API in terms 
    |
    |--- Fuzzer Module (FUZZ!)
 ```
+
+
+
+1. Чтобы запустить фаззер, прописать функцию run()
+2. Чтобы остановить фаззер на каком то моменте, прописать функцию stop()
+3. Чтобы 
