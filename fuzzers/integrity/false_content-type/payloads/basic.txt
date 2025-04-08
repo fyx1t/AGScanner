@@ -1,2 +1,4 @@
 text/plain
 application/json
+text/html
+multipart/form-data
