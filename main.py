@@ -17,7 +17,7 @@ def initialize_analyzer():
 def initialize_fuzzer():
     print('FUZZER START')
     fuzzer = fuz.Fuzzer()
-    fuzzer.fuzz()
+    fuzzer.work()
     print('FUZZER STOP')
 
 def run():
