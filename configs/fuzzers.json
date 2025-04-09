@@ -1,18 +1,18 @@
 {
     "all": {
-        "availability": [
+        "availability": {
             
-        ],
+        },
         "confidentiality": {
             "sqli": {
                 "path": "fuzzers/confidentiality/sqli",
-                "filename": "fuzzer.py",
+                "configs": "configs.json",
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             },
             "xss": {
                 "path": "fuzzers/confidentiality/xss",
-                "filename": "fuzzer.py",
+                "configs": "configs.json",
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             }
@@ -20,13 +20,13 @@
         "integrity": {
             "big_str": {
                 "path": "fuzzers/integrity/big_str",
-                "filename": "fuzzer.py",
+                "configs": "configs.json",
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             },
             "false_content-type": {
                 "path": "fuzzers/integrity/false_content-type",
-                "filename": "fuzzer.py",
+                "configs": "configs.json",
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             }
