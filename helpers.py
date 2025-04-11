@@ -1,8 +1,11 @@
 from json import load
 import importlib.util
 import requests
+import datetime
 import sys
 import os
+
+DATETIME = datetime.datetime.now()
 
 def import_module(path):
     """
@@ -47,6 +50,39 @@ def make_request(method: str, url: str, data=None, headers=None):
         return requests.get(url, cookies=cookies, headers=headers if headers else None)
     elif method == 'POST':
         return requests.post(url, data=data if data else None, cookies=cookies, headers=headers if headers else None)
+
+def log(object, alert: str = False, http_type: str = 'request'):
+    from pathlib import Path
+    import os
+
+    path = 'logs'
+    log = '{}\n{}\r\n{}\r\n\r\n{}'
+
+    # Проверяем наличие директорий:
+    if not Path(path).is_dir():
+        os.mkdir(path)
+    
+    # Создаем папку с логами под текущую сессию работы инструмента:
+    folder_name = DATETIME
+    if not Path(f'{path}/{folder_name}').is_dir():
+        os.mkdir(f'{path}/{folder_name}')
+
+    if http_type == 'request':
+        log = log.format(
+            '-----------REQUEST-----------',
+            object.method + ' ' + object.url,
+            '\r\n'.join('{}: {}'.format(k, v) for k, v in object.headers.items()),
+            object.body,
+        )
+    elif http_type == 'response':
+        log = log.format(
+            '-----------RESPONSE-----------',
+            str(object.status_code) + ' ' + object.url,
+            '\r\n'.join('{}: {}'.format(k, v) for k, v in object.headers.items()),
+            object.content.decode(),
+        )
+    with open(f'{path}/{folder_name}/alerts.log' if alert else f'{path}/{folder_name}/traffic.log', 'a') as log_file:
+        log_file.write(f'{log}\n')
 
 def check_csrf_presense(html_tags):
     """
