@@ -6,13 +6,18 @@
         "confidentiality": {
             "sqli": {
                 "path": "fuzzers/confidentiality/sqli",
-                "configs": "configs.json",
+                "payloads": [
+                    "basic.txt",
+                    "mysql.txt"
+                ],
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             },
             "xss": {
                 "path": "fuzzers/confidentiality/xss",
-                "configs": "configs.json",
+                "payloads": [
+                    "basic.txt"
+                ],
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             }
@@ -20,13 +25,17 @@
         "integrity": {
             "big_str": {
                 "path": "fuzzers/integrity/big_str",
-                "configs": "configs.json",
+                "payloads": [
+                    "basic.txt"
+                ],
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             },
             "false_content-type": {
                 "path": "fuzzers/integrity/false_content-type",
-                "configs": "configs.json",
+                "payloads": [
+                    "basic.txt"
+                ],
                 "readme": "README.md",
                 "payloads_folder": "payloads"
             }
