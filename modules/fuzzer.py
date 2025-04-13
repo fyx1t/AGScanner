@@ -1,4 +1,4 @@
-from helpers import make_request, log
+from helpers import make_request, log_http, log_message
 from hashlib import md5
 from random import randint
 from json import load
@@ -75,6 +75,8 @@ class FuzzConnection:
         pass
     
     def fuzz_through_payloads_combinations(self, arr, n, data, current_combination=[], index=0, start=True):
+        current_payloads_banch = []
+
         if start:
             self.responses = []
         if index == n:
@@ -90,22 +92,24 @@ class FuzzConnection:
                             body_data += f'{payload_key}&'
                         else:
                             body_data += f'{payload_key}={current_combination[i]}&'
+                            current_payloads_banch.append(current_combination[i])
                             i += 1
                 except IndexError:
-                    print(current_combination)
                     headers = {data['headers']: current_combination[i]}
+                    current_payloads_banch.append(current_combination[i])
                     i += 1
                         
             if data['method'].upper() == 'POST':
                 response = make_request('POST', f'{self.domain}{data["url"]}', body_data[:-1], headers=headers)
-                print(f'{self.domain}{data["url"]} --> {body_data[:-1]} --> {headers} --> POST')
             elif data['method'].upper() == 'GET':
                 response = make_request('GET', f'{self.domain}{data["url"]}', headers=headers)
-                print(f'{self.domain}{data["url"]} --> {headers} --> GET')
+
+            # Выводим очередной запрос:
+            print(f'[FUZZ] - {current_payloads_banch}')
 
             # Логируем все запросы и ответы:
-            log(response.request, False, 'request')
-            log(response, False, 'response')
+            log_http(response.request, False, 'request')
+            log_http(response, False, 'response')
             # Добавляем ответ в массив, который потом будет передан в метод check_for_alert для проверки на алерты:
             self.responses.append(response)
             return
@@ -130,7 +134,6 @@ class FuzzProcess:
         4. Реагирование на итоги работы FuzzConnection
         """
         self.fuzzer_data = fuzzer_data
-        print(fuzzer_data)
         self.payloads_collections = fuzzer_data['configs']['payloads']
         self.location = fuzzer_data['configs']['path']
         self.payloads_folder = fuzzer_data['configs']['payloads_folder']
@@ -150,11 +153,11 @@ class FuzzProcess:
         # Получаем стандартный ответ от сервиса:
         self.standart_outputs['bad'] = self.connection_module.save_standart_outputs(self.fuzzer_data['details'])
         # Загружаем пэйлоуды фаззера:
-        print(self.fuzzer_data['details'])
         payloads = self.load_payloads()
 
         # Берем поочередно каждый набор пэйлоудов для этого фаззера:
         for payloads_collection in payloads:
+            print(f'[MESSAGE] - FUZZER: {self.location} | COLLECTION: {payloads_collection} | PATH: {self.fuzzer_data["details"]["url"]}')
             # Если есть данные в словаре, то задаем длину n по количеству значений в нем (data['details'] - массив):
             if self.fuzzer_data['details']['data']:
                 n = len(self.fuzzer_data['details']['data'])
@@ -166,14 +169,13 @@ class FuzzProcess:
                 # В ином случае, задаем стартовое значение в 1:
                 n = 1
             # Запускаем фаззер для каждого набора с пэйлоудами с нужными настройками через интерфейс FuzzProcess:
+            print('#############')
             self.connection_module.fuzz_through_payloads_combinations(payloads[payloads_collection], n, self.fuzzer_data['details'])
+            print('#############')
             self.responses[payloads_collection] = self.connection_module.responses
         
         # Когда фаззинг завершен, производим анализ всех ответов на наличие алертов:
         self.check_for_alert()
-
-        # Выводим информацию об окончании работы очередного фаззера:
-        print(f'stoping {self.location}')
 
     def load_payloads(self) -> dict:
         """
@@ -193,8 +195,8 @@ class FuzzProcess:
         for key in self.responses.keys():
             for response in self.responses[key]:
                 if response.status_code != 200 and response.status_code != self.standart_outputs['bad'].status_code:
-                    log(response.request, True, 'request')
-                    log(response, True, 'response')
+                    log_http(response.request, True, 'request')
+                    log_http(response, True, 'response')
 
 
 if __name__ == '__main__':

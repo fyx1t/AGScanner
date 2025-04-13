@@ -1,5 +1,6 @@
 {
-    "domain": "http://127.0.0.1:8001",
+    "domain": "https://google.com",
     "paths_filedir": "data/paths.json",
-    "pool_filedir": "data/pool.json"
+    "pool_filedir": "data/pool.json",
+    "stdout": ""
 }
