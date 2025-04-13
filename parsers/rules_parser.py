@@ -31,7 +31,7 @@ class RuleParser:
             '|': r'\|',                # | - логическое ИЛИ
             '&': r'\&',                # + - логическое И
             '+': r'\+',                # + - вхождение вглубь дерева
-            '[A-Za-z*-]+': r'[A-Za-z*-]+'  # идентификаторы: HTML, TAG, form, input и т.д.
+            "[A-Za-z*-]+|\'.*?'": r"[A-Za-z*-]+|\'.*?'"  # идентификаторы: HTML, TAG, form, input и т.д.
         }
         self.tokenizer = re.compile('|'.join(self.token_patterns.values()))
 

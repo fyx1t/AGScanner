@@ -9,6 +9,10 @@ class Spy:
         path = 'data'
         if not Path(path).is_dir():
             os.mkdir(path)
+        
+        # Обновляем/создаем файл endpoints.json:
+        # open(path + '/endpoints.json', 'w')
+        # Обновляем/создаем файл:
 
 
 if __name__ == '__main__':

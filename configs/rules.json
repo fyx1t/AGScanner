@@ -21,6 +21,27 @@
         }
     },
     {
+        "name": "url_parameter",
+        "checkrule": "?HTML%TAG/a+%ATRIBUTE/href+%CONTAINS/'?'",
+        "fuzzers": [
+            {
+                "claster": "confidentiality",
+                "name": "sqli"
+            },
+            {
+                "claster": "integrity",
+                "name": "big_str"
+            }
+        ],
+        "data": {
+            "url": "!HTML%TAG/a+%ATRIBUTE/action",
+            "data": "!HTML%TAG/a+%TAG/input*textarea*text+%ATRIBUTE/name",
+            "placeholder": "ATRIBUTE",
+            "headers": "Content-Type: application/x-www-form-urlencoded",
+            "method": "!HTML%a/form+%ATRIBUTE/method"
+        }
+    },
+    {
         "name": "header_content_type",
         "checkrule": "?HTTP%HEADER/content-type+%VALUE/json",
         "fuzzers": [

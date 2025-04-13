@@ -15,6 +15,11 @@ def check_in_html(endpoint, node) -> bool:
     executor = RuleExecutor()
     executor.rule_type = 'CHECK'
     executor.execute(node, html_data)
+
+    node.print_tree()
+    print(executor.collection)
+    print(executor.check())
+
     return executor.check()
 
 def get_in_html(endpoint, node) -> dict:
@@ -128,6 +133,7 @@ class RuleExecutor:
                 self.html_spaces[html_space_level+1] = self.html_spaces[html_space_level+1].replace(', ', '|#|')
             else:
                 self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
+            print(self.html_spaces[html_space_level+1])
             if self.rule_type == 'CHECK':
                 # 2 is because of [] symbols:
                 if len(self.html_spaces[html_space_level + 1]) > 2:
@@ -164,6 +170,11 @@ class RuleExecutor:
                 elif self.rule_type == 'GRUB':
                     if data and node.value in [*data.keys()]:
                         self.return_data.append(data[node.value])
+        elif prev_node.value == 'CONTAINS':
+            soup = BeautifulSoup(str(self.html_spaces[html_space_level-1]), 'html.parser')
+            # Здесь используем html_space_level-1, так как вы не создаем новую область поиска, а всего лишь ищем текст в предыдущей
+            # Далее нужно либо самому искать данные, указанные после CONTAINT, либо использовать как то возможности парсера
+            data = soup.find()
 
 if __name__ == '__main__':
     pass
