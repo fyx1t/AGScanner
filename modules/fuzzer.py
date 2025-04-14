@@ -30,6 +30,11 @@ class Fuzzer:
         Метод начала работы фаззинга. После вызова метода сущность производит 
         настройку параметров и поочередно запускает требуемые фаззеры 
         """
+
+
+        # !!!!!!! В ТЕКУЩЕМ ВАРИАНТЕ КОДА ЕСЛИ ФАЗЗЕР ДОЛЖЕН БЫТЬ ИСПОЛЬЗОВАН В ДВУХ И БОЛЕЕ URL, ТО ОН БУДЕТ ИСПОЛЬЗОВАН ТОЛЬКО В ОДНОМ!!!
+
+
         # Импортируем конфиги используемых фаззеров и проверяем их:
         for fuzzer in [fuzzer for endpoint in self.pool.keys() for fuzzer in self.pool[endpoint] if fuzzer['name']]:
             if fuzzer['name'] not in self.usable_fuzzers.keys():
@@ -66,10 +71,10 @@ class FuzzConnection:
         except IndexError:
             pass
         if data['method'] == 'GET':
-            response = make_request('GET', f"{self.domain}{data['url']}", None, headers=headers)
+            response = make_request('GET', f"{self.domain}{data['url']}", headers=headers)
         elif data['method'].upper() == 'POST':
             response = make_request('POST', f"{self.domain}{data['url']}", ''.join(f"{element}={md5(f'{randint(0, 500)}'.encode()).hexdigest()}&" for element in data['data'])[:-1], headers=headers)
-            return response
+        return response
         
     def use_payloads_batch(self):
         pass
@@ -98,11 +103,24 @@ class FuzzConnection:
                     headers = {data['headers']: current_combination[i]}
                     current_payloads_banch.append(current_combination[i])
                     i += 1
+            
+            if data['placeholder'].upper() == 'URL':
+                # Если фаззим в url, очищаем найденное url от аргументов и фаззим со своими:
+                url = f'{self.domain}{data["url"]}'.split('?')[0] + '?'
+                for payload_key in data['data']:
+                    if '=' in payload_key:
+                        url += f'{payload_key}&'
+                    else:
+                        url += f'{payload_key}={current_combination[i]}&'
+                        current_payloads_banch.append(current_combination[i])
+                        i += 1
                         
-            if data['method'].upper() == 'POST':
-                response = make_request('POST', f'{self.domain}{data["url"]}', body_data[:-1], headers=headers)
-            elif data['method'].upper() == 'GET':
-                response = make_request('GET', f'{self.domain}{data["url"]}', headers=headers)
+            if data['placeholder'].upper() == 'BODY':
+                response = make_request(data['method'].upper(), f'{self.domain}{data["url"]}', body_data[:-1], headers=headers)
+            elif data['placeholder'].upper() == 'HEADER':
+                response = make_request(data['method'].upper(), f'{self.domain}{data["url"]}', headers=headers)
+            elif data['placeholder'].upper() == 'URL':
+                response = make_request(data['method'].upper(), url, headers=headers)
 
             # Выводим очередной запрос:
             print(f'[FUZZ] - {current_payloads_banch}')
@@ -169,9 +187,9 @@ class FuzzProcess:
                 # В ином случае, задаем стартовое значение в 1:
                 n = 1
             # Запускаем фаззер для каждого набора с пэйлоудами с нужными настройками через интерфейс FuzzProcess:
-            print('#############')
+            print('-------------')
             self.connection_module.fuzz_through_payloads_combinations(payloads[payloads_collection], n, self.fuzzer_data['details'])
-            print('#############')
+            print('-------------')
             self.responses[payloads_collection] = self.connection_module.responses
         
         # Когда фаззинг завершен, производим анализ всех ответов на наличие алертов:
