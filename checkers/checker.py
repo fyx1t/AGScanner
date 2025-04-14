@@ -26,10 +26,10 @@ def run(endpoint: str) -> dict:
         if check_node.children[0].value == 'HTML':
             if check_in_html(endpoint, check_node):
                 # Add check for every rule (HTML, HTTP, API):
-                if method_node.value is None:
+                if not method_node.children:
                     method = rule_instance['data']['method']
                 else:
-                    method = get_in_html(endpoint, method_node)
+                    method = get_in_html(endpoint, method_node)[0]
 
                 url = get_in_html(endpoint, url_node)
                 if len(url) > 0:

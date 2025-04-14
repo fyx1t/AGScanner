@@ -164,10 +164,11 @@ class RuleExecutor:
                 if self.rule_type == 'CHECK':
                     pass
                 elif self.rule_type == 'GRUB':
-                    pass
-                    # if data and node.value in [*data.keys()]:
-                    #     self.return_data.append(data[node.value])
+                    if data and node.value in [*data.keys()]:
+                        self.return_data.append(data[node.value])
         elif prev_node.value == 'CONTAINS':
+            # Чтобы если до этого были найдены данные, они нам не нужны, а нужны данные только в новой области поиска:
+            self.return_data = []
             # Здесь используем html_space_level-1, так как вы не создаем новую область поиска, а всего лишь ищем текст в предыдущей:
             soup = BeautifulSoup(str(self.html_spaces[html_space_level-1]), 'html.parser')
 
@@ -191,7 +192,7 @@ class RuleExecutor:
                 self.html_spaces[html_space_level] = self.html_spaces[html_space_level].replace(', ', '|#|')
 
         elif prev_node.value == 'PARAMETER':
-            # Чтобы если у нас rule_type == CHECK, а до этого были найдены данные, они нам не нужны, а нужны данные только в новой области поиска:
+            # Чтобы если до этого были найдены данные, они нам не нужны, а нужны данные только в новой области поиска:
             self.return_data = []
             soup = BeautifulSoup(str(self.html_spaces[html_space_level-1]), 'html.parser')
             for tag in soup.find_all('a'):
