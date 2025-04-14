@@ -20,7 +20,7 @@ class Fuzzer:
         self.pool: dict = load(open('data/pool.json', 'r'))
         # Загрузка всех фаззеров:
         self.fuzzers: dict = load(open('configs/fuzzers.json', 'r'))
-        # Словарь, в который будут добавлены используемые фаззеры и вся необходимая информация о них:
+        # Словарь, в который будут добавлены используемые фаззеры для каждого URL и вся необходимая информация о них:
         self.usable_fuzzers: dict = {}
         # Список результатов фаззинга:
         self.results: list = []
@@ -30,24 +30,24 @@ class Fuzzer:
         Метод начала работы фаззинга. После вызова метода сущность производит 
         настройку параметров и поочередно запускает требуемые фаззеры 
         """
-
-
-        # !!!!!!! В ТЕКУЩЕМ ВАРИАНТЕ КОДА ЕСЛИ ФАЗЗЕР ДОЛЖЕН БЫТЬ ИСПОЛЬЗОВАН В ДВУХ И БОЛЕЕ URL, ТО ОН БУДЕТ ИСПОЛЬЗОВАН ТОЛЬКО В ОДНОМ!!!
-
-
         # Импортируем конфиги используемых фаззеров и проверяем их:
-        for fuzzer in [fuzzer for endpoint in self.pool.keys() for fuzzer in self.pool[endpoint] if fuzzer['name']]:
-            if fuzzer['name'] not in self.usable_fuzzers.keys():
-                # Если конфиги фаззера еще не были импортированы, импортируем их:
-                self.usable_fuzzers[fuzzer['name']] = {
+        for endpoint in self.pool.keys():
+            # Создаем пространство фаззеров очередного URL:
+            self.usable_fuzzers[endpoint] = {}
+            # Для каждого фаззера проверяем, есть ли он в используем пространстве фаззеров URL:
+            for fuzzer in self.pool[endpoint]:
+                if fuzzer['name'] not in self.usable_fuzzers[endpoint].keys():
+                    # Если конфиги фаззера еще не были импортированы, импортируем их:
+                    self.usable_fuzzers[endpoint][fuzzer['name']] = {
                         'details': fuzzer, 
                         'configs': self.fuzzers['all'][fuzzer['claster']][fuzzer['name']]
                     }
             # Проверяем правильность имплементации:
-                
+        
         # Запускаем фаззеры:
-        for fuzzer in self.usable_fuzzers.keys():
-            self.results.append(FuzzProcess(self.usable_fuzzers[fuzzer]).fuzz())
+        for endpoint in self.usable_fuzzers.keys():
+            for fuzzer in self.usable_fuzzers[endpoint].keys():
+                self.results.append(FuzzProcess(self.usable_fuzzers[endpoint][fuzzer]).fuzz())
 
 
 class FuzzConnection:
@@ -169,6 +169,7 @@ class FuzzProcess:
         Возвращает обработанные или измененные данные.
         """
         # Получаем стандартный ответ от сервиса:
+        print(self.fuzzer_data['details'])
         self.standart_outputs['bad'] = self.connection_module.save_standart_outputs(self.fuzzer_data['details'])
         # Загружаем пэйлоуды фаззера:
         payloads = self.load_payloads()
