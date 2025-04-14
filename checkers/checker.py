@@ -26,13 +26,17 @@ def run(endpoint: str) -> dict:
         if check_node.children[0].value == 'HTML':
             if check_in_html(endpoint, check_node):
                 # Add check for every rule (HTML, HTTP, API):
-                method = get_in_html(endpoint, method_node)
+                if method_node.value is None:
+                    method = rule_instance['data']['method']
+                else:
+                    method = get_in_html(endpoint, method_node)
 
-                # Учитывая. что в HTML мы ищем метод в атрибуте тега, то если его нет, предполагаем, что подразумевается get
-                method = method[0] if method else 'GET'
+                url = get_in_html(endpoint, url_node)
+                if len(url) > 0:
+                    url = url[0]
 
                 output[rule_instance['name']] = {
-                    "url": get_in_html(endpoint, url_node)[0] if url_node.children else rule_instance['data']['url'],
+                    "url": url if url_node.children else rule_instance['data']['url'] if rule_instance['data']['url'] != 'SELF' else endpoint,
                     "data": get_in_html(endpoint, data_node) if data_node.children else rule_instance['data']['data'],
                     "placeholder": get_in_html(endpoint, placeholder_node) if placeholder_node.children else rule_instance['data']['placeholder'],
                     "headers": rule_instance['data']['headers'],# "headers": get_in_html(endpoint, headers_node) if headers_node.children else rule_instance['data']['headers'],

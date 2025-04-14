@@ -16,10 +16,6 @@ def check_in_html(endpoint, node) -> bool:
     executor.rule_type = 'CHECK'
     executor.execute(node, html_data)
 
-    node.print_tree()
-    print(executor.collection)
-    print(executor.check())
-
     return executor.check()
 
 def get_in_html(endpoint, node) -> dict:
@@ -133,7 +129,6 @@ class RuleExecutor:
                 self.html_spaces[html_space_level+1] = self.html_spaces[html_space_level+1].replace(', ', '|#|')
             else:
                 self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
-            print(self.html_spaces[html_space_level+1])
             if self.rule_type == 'CHECK':
                 # 2 is because of [] symbols:
                 if len(self.html_spaces[html_space_level + 1]) > 2:
@@ -150,7 +145,7 @@ class RuleExecutor:
                     elif operator == '&':
                         self.collection.append(arg_1 and arg_2)
                     self.need_to_check = False
-        elif prev_node.value == 'ATRIBUTE':
+        elif prev_node.value == 'ATTRIBUTE':
             if '|#|' in str(self.html_spaces[html_space_level]):
                 splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')
                 del splitted_html_spaces[-1]
@@ -160,6 +155,7 @@ class RuleExecutor:
                     if self.rule_type == 'CHECK':
                         pass
                     elif self.rule_type == 'GRUB':
+                        pass
                         if data and node.value in [*data.keys()]:
                             self.return_data.append(data[node.value])
             else:
@@ -168,13 +164,43 @@ class RuleExecutor:
                 if self.rule_type == 'CHECK':
                     pass
                 elif self.rule_type == 'GRUB':
-                    if data and node.value in [*data.keys()]:
-                        self.return_data.append(data[node.value])
+                    pass
+                    # if data and node.value in [*data.keys()]:
+                    #     self.return_data.append(data[node.value])
         elif prev_node.value == 'CONTAINS':
+            # Здесь используем html_space_level-1, так как вы не создаем новую область поиска, а всего лишь ищем текст в предыдущей:
             soup = BeautifulSoup(str(self.html_spaces[html_space_level-1]), 'html.parser')
-            # Здесь используем html_space_level-1, так как вы не создаем новую область поиска, а всего лишь ищем текст в предыдущей
-            # Далее нужно либо самому искать данные, указанные после CONTAINT, либо использовать как то возможности парсера
-            data = soup.find()
+
+            if self.rule_type == 'CHECK':
+                found = False
+                # Все значения пока статические, но обязательно нужно смотреть области поиска:
+                for tag in soup.find_all('a'):
+                    if node.value.replace("'", '') in tag.attrs['href']:
+                        self.collection.append(True)
+                        found = True
+                        break
+                
+                if not found:
+                    self.collection.append(False)
+            else:
+                self.html_spaces[html_space_level] = ''
+                for tag in soup.find_all('a'):
+                    if node.value.replace("'", '') in tag.attrs['href']:
+                        self.return_data.append(tag.attrs['href'])
+                        self.html_spaces[html_space_level] += str(tag) + '|#|'
+                self.html_spaces[html_space_level] = self.html_spaces[html_space_level].replace(', ', '|#|')
+
+        elif prev_node.value == 'PARAMETER':
+            # Чтобы если у нас rule_type == CHECK, а до этого были найдены данные, они нам не нужны, а нужны данные только в новой области поиска:
+            self.return_data = []
+            soup = BeautifulSoup(str(self.html_spaces[html_space_level-1]), 'html.parser')
+            for tag in soup.find_all('a'):
+                data = tag.attrs['href']
+                for parameter in data.split('?')[1].split('&'):
+                    self.return_data.append(parameter.split('=')[0])
+                # Временный return, потому что пока фаззер не умеет фаззить несколько одинаковых конструкций:
+                return
+
 
 if __name__ == '__main__':
     pass
