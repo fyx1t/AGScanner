@@ -83,17 +83,17 @@ def log_http(response, alert: str = False, http_type: str = 'request'):
     # Если нам необходимо добавить запрос, 
     if http_type == 'request':
         log = log.format(
-            '-----------REQUEST-----------',
+            f'{"-"*50}REQUEST{"-"*50}',
             response.method + ' ' + response.url,
             '\r\n'.join('{}: {}'.format(k, v) for k, v in response.headers.items()),
-            response.body,
+            response.body if response.body else '',
         )
     elif http_type == 'response':
         log = log.format(
-            '-----------RESPONSE-----------',
+            f'-{"-"*50}RESPONSE{"-"*50}',
             str(response.status_code) + ' ' + response.url,
             '\r\n'.join('{}: {}'.format(k, v) for k, v in response.headers.items()),
-            response.content.decode(),
+            response.content.decode() if response.content.decode() else '',
         )
     with open(f'{log_folder}/alerts.log' if alert else f'{log_folder}/traffic.log', 'a') as log_file:
         log_file.write(f'{log}\n')
