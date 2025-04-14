@@ -13,16 +13,16 @@
             }
         ],
         "data": {
-            "url": "!HTML%TAG/form+%ATRIBUTE/action",
-            "data": "!HTML%TAG/form+%TAG/input*textarea*text+%ATRIBUTE/name",
+            "url": "!HTML%TAG/form+%ATTRIBUTE/action",
+            "data": "!HTML%TAG/form+%TAG/input*textarea*text+%ATTRIBUTE/name",
             "placeholder": "BODY",
             "headers": "Content-Type: application/x-www-form-urlencoded",
-            "method": "!HTML%TAG/form+%ATRIBUTE/method"
+            "method": "!HTML%TAG/form+%ATTRIBUTE/method"
         }
     },
     {
         "name": "url_parameter",
-        "checkrule": "?HTML%TAG/a+%ATRIBUTE/href+%CONTAINS/'?'",
+        "checkrule": "?HTML%TAG/a+%ATTRIBUTE/href+%CONTAINS/'?'",
         "fuzzers": [
             {
                 "claster": "confidentiality",
@@ -34,11 +34,11 @@
             }
         ],
         "data": {
-            "url": "!HTML%TAG/a+%ATRIBUTE/action",
-            "data": "!HTML%TAG/a+%TAG/input*textarea*text+%ATRIBUTE/name",
-            "placeholder": "ATRIBUTE",
-            "headers": "Content-Type: application/x-www-form-urlencoded",
-            "method": "!HTML%a/form+%ATRIBUTE/method"
+            "url": "!HTML%TAG/a+%ATTRIBUTE/href+%CONTAINS/'?'",
+            "data": "!HTML%TAG/a+%ATTRIBUTE/href+%CONTAINS/'?'+%PARAMETER/*",
+            "placeholder": "URL",
+            "headers": "",
+            "method": "GET"
         }
     },
     {
