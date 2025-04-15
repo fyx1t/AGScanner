@@ -2,9 +2,10 @@
     "HTTP": {
         "HEADERS": {
             "BASIC": {
+                
             },
             "COOKIES": {
-                "session": ""
+
             }
         }
     }

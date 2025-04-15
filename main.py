@@ -1,6 +1,9 @@
-from modules import analyzer as an
-from modules import spy as sp
-from modules import fuzzer as fuz
+import sys
+sys.dont_write_bytecode = True
+
+from modules.alanyzer import analyzer as an
+from modules.spy import spy as sp
+from modules.fuzzer import fuzzer as fuz
 from json import load
 
 def config():
@@ -15,10 +18,10 @@ def config():
             print(f'[WARNING] - COULDNT CHANGE STDOUT TO {configs["stdout"]}.\nCONTINUE...\nREASON:\n{error}')
 
 def initialize_spy():
-    print('[STAGE] - SPY START')
+    print('[SPY] - START')
     spy = sp.Spy()
     spy.conduct_reconnaissance()
-    print('[STAGE] - SPY STOP')
+    print('[SPY] - STOP')
 
 def initialize_analyzer():
     print('[ANALYZER] - START')
