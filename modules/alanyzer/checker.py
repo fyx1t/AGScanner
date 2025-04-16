@@ -13,7 +13,7 @@ class __BaseCheck:
         self.need_to_check = False
 
     def work(self, endpoint: str, rule_type: str):
-        # Обновляем данные:
+        # Обнуляем данные:
         self.update()
 
         with open('configs/main.json', 'r') as configs_file:
@@ -31,14 +31,9 @@ class __BaseCheck:
         self.need_to_check = False
 
         # Обновление данных, если они есть:
-        if hasattr(self, 'response'):
-            self.response = None
-
-        if hasattr(self, 'header_name'):
-            self.header_name = ''
-
-        if hasattr(self, 'html_spaces'):
-            self.html_spaces = {}
+        if hasattr(self, 'response'): self.response = None
+        if hasattr(self, 'header_name'): self.header_name = ''
+        if hasattr(self, 'html_spaces'): self.html_spaces = {}
 
     def check(self) -> bool:
         """
@@ -81,8 +76,7 @@ class HTMLCheck(__BaseCheck):
         self.html_spaces = {}
     
     def work(self, endpoint, node, rule_type):
-        response = super().work(endpoint, rule_type)
-        self.execute(node, response.content.decode())
+        self.execute(node, super().work(endpoint, rule_type).content.decode())
 
         return self.return_data if rule_type == 'GRUB' else self.check()
 
@@ -90,23 +84,29 @@ class HTMLCheck(__BaseCheck):
         """
         Метод для выполнения всех правил по дереву узлов
         """
+        root.print_tree()
         self.html_spaces[0] = html_data
         self.__execute_node(root, 0)
 
     def __execute_node(self, node, html_space_level, prev_node=None):
         if node.node_type == 'Root':
+            print('node.children', node.children)
             self.__execute_node(node.children[0], html_space_level=html_space_level)
+
         elif node.node_type == 'SearchType':
             for child in node.children:
                 self.__execute_node(child, html_space_level=html_space_level)
+
         elif node.node_type == 'SearchDetail':
             for child in node.children:
                 if child.node_type == 'Entity':
                     self.__execute_node(child, prev_node=node, html_space_level=html_space_level)
                 else:
                     self.__execute_node(child, prev_node=node, html_space_level=html_space_level+1)
+
         elif node.node_type == 'Entity':
             self._search_entity(node, prev_node, html_space_level)
+
         if node.logic_operator:
             self.collection.append(node.logic_operator)
             self.need_to_check = True
@@ -129,6 +129,7 @@ class HTMLCheck(__BaseCheck):
                 self.html_spaces[html_space_level+1] = self.html_spaces[html_space_level+1].replace(', ', '|#|')
             else:
                 self.html_spaces[html_space_level+1] = str(soup.find_all(node.value))
+
             if self.rule_type == 'CHECK':
                 # 2 is because of [] symbols:
                 if len(self.html_spaces[html_space_level + 1]) > 2:
@@ -145,6 +146,7 @@ class HTMLCheck(__BaseCheck):
                     elif operator == '&':
                         self.collection.append(arg_1 and arg_2)
                     self.need_to_check = False
+
         elif prev_node.value == 'ATTRIBUTE':
             if '|#|' in str(self.html_spaces[html_space_level]):
                 splitted_html_spaces = str(self.html_spaces[html_space_level]).split('|#|')
@@ -166,6 +168,7 @@ class HTMLCheck(__BaseCheck):
                 elif self.rule_type == 'GRUB':
                     if data and node.value in [*data.keys()]:
                         self.return_data.append(data[node.value])
+                        
         elif prev_node.value == 'CONTAINS':
             # Чтобы если до этого были найдены данные, они нам не нужны, а нужны данные только в новой области поиска:
             self.return_data = []
@@ -210,8 +213,7 @@ class HTTPCheck(__BaseCheck):
         self.response = None
     
     def work(self, endpoint, node, rule_type):
-        response = super().work(endpoint, rule_type)
-        self.execute(node, response)
+        self.execute(node, super().work(endpoint, rule_type))
 
         return self.return_data if rule_type == 'GRUB' else self.check()
 
@@ -309,8 +311,6 @@ class Checker:
                     url = html_checker.work(endpoint, url_node, 'GRUB')
                     if len(url) > 0:
                         url = url[0]
-
-                    print(html_checker.work(endpoint, method_node, 'GRUB'))
 
                     output[rule_instance['name']] = {
                         "url": url if url_node.children else rule_instance['data']['url'] if rule_instance['data']['url'] != 'SELF' else endpoint,
