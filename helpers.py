@@ -10,8 +10,7 @@ DATETIME = datetime.datetime.now()
 
 def import_module(path):
     """
-    
-    Хелпер нужен для динамической подгрузки модулей и по сути заменяет инструкцию import
+        Хелпер нужен для динамической подгрузки модулей и по сути заменяет инструкцию import
     """
     # Определяем полный путь к файлу
     file_path = os.path.abspath(path)
@@ -29,8 +28,7 @@ def import_module(path):
 
 def make_request(method: str, url: str, data=None, headers=None):
     """
-
-    Хелпер для обработки запросов вместе вызова requests
+        Хелпер для обработки запросов вместо вызова requests
     """
 
     # Загружаем и добавляем куки:
@@ -100,15 +98,18 @@ def log_http(response, alert: str = False, http_type: str = 'request'):
 
 def check_csrf_presense(html_tags):
     """
-
-    Проверяет наличие csrf в названиях тегов
+        Проверяет наличие csrf в названиях тегов
     """
     html_tags = str(html_tags).replace('[', '').replace(']', '').replace('<', '').replace('>', '').replace('/', '').replace('"', '').replace("'", '').split(', ')
     for tag in html_tags:
-        name_value = tag.split('name=')[1].split(' ')[0]
-        if 'csrf' in name_value:
-            csrf_token = tag.split('value=')[1].split(' ')[0]
-            return {'name': name_value, 'value': csrf_token}
+        try:
+            name_value = tag.split('name=')[1].split(' ')[0]
+            if 'csrf' in name_value:
+                csrf_token = tag.split('value=')[1].split(' ')[0]
+                return {'name': name_value, 'value': csrf_token}
+        except IndexError:
+            # Предполагаем, что если нет атрибута name, это input
+            pass
     return {}
 
 if __name__ == '__main__':
