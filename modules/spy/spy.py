@@ -33,7 +33,6 @@ class Spy:
 
     def get_all_links(self, url):
         links = []
-
         try:
             response = make_request('GET', url)
             if response.history and response.status_code == 200:
@@ -52,7 +51,6 @@ class Spy:
         return links
 
     def crawl_website(self):
-
         while self.to_visit:
             current_url = self.to_visit.pop()
 

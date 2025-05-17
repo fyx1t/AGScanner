@@ -7,6 +7,7 @@ import sys
 import os
 
 DATETIME = datetime.datetime.now()
+AMOUNT_OF_REQUESTS = 0
 
 def import_module(path):
     """
@@ -30,6 +31,7 @@ def make_request(method: str, url: str, data=None, headers=None):
     """
         Хелпер для обработки запросов вместо вызова requests
     """
+    global AMOUNT_OF_REQUESTS
 
     # Загружаем и добавляем куки:
     with open('configs/web.json', 'r') as cookies_file:
@@ -46,8 +48,10 @@ def make_request(method: str, url: str, data=None, headers=None):
                 headers[header_key] = basic_headers[header_key]
 
     if method == 'GET':
+        AMOUNT_OF_REQUESTS += 1
         return requests.get(url, cookies=cookies, headers=headers if headers else None)
     elif method == 'POST':
+        AMOUNT_OF_REQUESTS += 1
         return requests.post(url, data=data if data else None, cookies=cookies, headers=headers if headers else None)
 
 def check_folder_presense(path: str):
@@ -111,6 +115,10 @@ def check_csrf_presense(html_tags):
             # Предполагаем, что если нет атрибута name, это input
             pass
     return {}
+
+def return_amount_of_requests() -> int:
+    global AMOUNT_OF_REQUESTS
+    return AMOUNT_OF_REQUESTS
 
 if __name__ == '__main__':
     pass

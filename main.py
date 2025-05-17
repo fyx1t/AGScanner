@@ -4,7 +4,9 @@ sys.dont_write_bytecode = True
 from modules.alanyzer import analyzer as an
 from modules.spy import spy as sp
 from modules.fuzzer import fuzzer as fuz
+from helpers import return_amount_of_requests
 from json import load
+import time
 
 def config():
     with open('configs/main.json', 'r') as configs_file:
@@ -36,12 +38,32 @@ def initialize_fuzzer():
     print('[FUZZER] - STOP')
 
 def run():
+    # Задаем начальный таймер:
+    start_time = time.time()
+
     # Предварительная настройка:
     config()
 
     initialize_spy()  # Инициализация шпиона
     initialize_analyzer()  # Получаем пул фаззеров
     initialize_fuzzer()  # Инициализация фаззера
+
+    # Задаем конечный таймер:
+    end_time = time.time()
+
+    # Выводим общее количество сделанных запросов:
+    amount_of_requests = return_amount_of_requests()
+    print(f'Всего было совершено {amount_of_requests} запросов')
+
+    # Выводим время работы инструмента:
+    full_work_time = end_time-start_time
+    print(f'Время работы инструмента: {full_work_time}')
+
+    # Выводим запросы в секунду:
+    print(f'Количество запросов в секунду: {amount_of_requests / full_work_time}')
+
+    import psutil
+    print(f"Память: {psutil.Process().memory_info().rss / 1024 ** 2:.2f} МБ")
 
 if __name__ == '__main__':
     run()
