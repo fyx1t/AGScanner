@@ -1,7 +1,14 @@
 {
     "all": {
         "availability": {
-            
+            "redos": {
+                "path": "fuzzers/availability/redos",
+                "payloads": [
+                    "basic.txt"
+                ],
+                "readme": "README.md",
+                "payloads_folder": "payloads"
+            }
         },
         "confidentiality": {
             "sqli": {
@@ -9,14 +16,6 @@
                 "payloads": [
                     "basic.txt",
                     "mysql.txt"
-                ],
-                "readme": "README.md",
-                "payloads_folder": "payloads"
-            },
-            "xss": {
-                "path": "fuzzers/confidentiality/xss",
-                "payloads": [
-                    "basic.txt"
                 ],
                 "readme": "README.md",
                 "payloads_folder": "payloads"

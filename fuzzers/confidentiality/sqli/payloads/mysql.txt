@@ -1,6 +1,7 @@
-whilegs
-erg
-elifsd
-qw
-das
-ger
+' OR '1
+' OR 1 -- -
+" OR "" = "
+" OR 1 = 1 -- -
+'='
+'LIKE'
+'=0--+
