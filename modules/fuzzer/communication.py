@@ -1,4 +1,5 @@
-from helpers import make_request, log_http
+from helpers import make_request, log_http, log_http_error
+from requests import Request
 from hashlib import md5
 from random import randint
 from json import load
@@ -83,6 +84,12 @@ class FuzzConnection:
 
             # Выводим очередной запрос:
             print(f'[FUZZ] - {current_payloads_banch}')
+
+            if response is None:
+                request = Request(data['method'].upper(), f'{self.domain}{data["url"]}', headers, data=body_data[:-1] if data['placeholder'].upper() == 'BODY' else None).prepare()
+                log_http(request, False, 'request')
+                log_http_error()
+                return
 
             # Логируем все запросы и ответы:
             log_http(response.request, False, 'request')

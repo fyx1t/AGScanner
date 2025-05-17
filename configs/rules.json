@@ -10,6 +10,10 @@
             {
                 "claster": "integrity",
                 "name": "big_str"
+            },
+            {
+                "claster": "availability",
+                "name": "redos"
             }
         ],
         "data": {

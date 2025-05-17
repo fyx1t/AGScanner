@@ -47,12 +47,15 @@ def make_request(method: str, url: str, data=None, headers=None):
             if header_key not in headers.keys():
                 headers[header_key] = basic_headers[header_key]
 
-    if method == 'GET':
-        AMOUNT_OF_REQUESTS += 1
-        return requests.get(url, cookies=cookies, headers=headers if headers else None)
-    elif method == 'POST':
-        AMOUNT_OF_REQUESTS += 1
-        return requests.post(url, data=data if data else None, cookies=cookies, headers=headers if headers else None)
+    try:
+        if method == 'GET':
+            AMOUNT_OF_REQUESTS += 1
+            return requests.get(url, cookies=cookies, headers=headers if headers else None, timeout=5)
+        elif method == 'POST':
+            AMOUNT_OF_REQUESTS += 1
+            return requests.post(url, data=data if data else None, cookies=cookies, headers=headers if headers else None, timeout=5)
+    except requests.exceptions.Timeout:
+        return None
 
 def check_folder_presense(path: str):
     # Проверяем наличие общей директории с логами. Если ее нет, создаем:
@@ -71,6 +74,22 @@ def log_message(message: str):
     
     with open(f'{log_folder}/info.log', 'a') as log_file:
         log_file.write(f'{message}\n')
+
+def log_http_error():
+    path = 'logs'
+    log_folder = f'{path}/{DATETIME}'
+
+    # Проверяем наличие общей директории с логами. Если ее нет, создаем:
+    check_folder_presense(path)
+    # Создаем директорию с логами под текущую сессию работы инструмента:
+    check_folder_presense(log_folder)
+
+    # Уведомляем об отсутствии ответа:
+    log = f'{"-"*50}RESPONSE{"-"*50}\nNO RESPONSE',
+    
+    # Сохраняем лог:
+    with open(f'{log_folder}/alerts.log', 'a') as log_file:
+        log_file.write(f'{log}\n')
 
 def log_http(response, alert: str = False, http_type: str = 'request'):
     path = 'logs'
